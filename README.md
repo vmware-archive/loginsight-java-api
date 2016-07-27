@@ -4,14 +4,18 @@
 
 ## Overview
 
-LogInsight Java API provides a fluent API to query loginsight and as well ingest messages to LogInsight.
+LogInsight Java API provides a fluent API to interact with VMware vRealize LogInsight 
+* message queries
+* aggregate queries
+* ingesion
  
 ## Try it out
 
 ### Prerequisites
 
 * Java 8 JDK installed and set your JAVA_HOME to home of Java8 JDK
-
+* vRealize LogInsight 3.3 onwards
+ 
 ### Build & Run
 
 ~~~bash
@@ -28,8 +32,13 @@ client.connect();
 ~~~
 
 ### Ingestion of messages to LogInsight
-~~~java
 
+~~~java
+Message msg1 = new Message("Testing the ingestion");
+msg1.addField("field", "value");
+IngestionRequest request = new IngestionRequest();
+request.addMessage(msg1);
+IngestionResponse response = client.injest(request);
 ~~~
 
 ### Message Queries
@@ -50,26 +59,28 @@ final CountDownLatch latch = new CountDownLatch(1);
 List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
 MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100).setConstraints(constraints);
 client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsightApiError error) -> {
- if (error.isError()) {
-  // Handle error
- } else {
-  // Handle response
-  latch.countDown();
+	if (error.isError()) {
+		// Handle error
+	} else {
+		// Handle response
+		latch.countDown();
 	}
 });
 try {
- latch.await();
+	latch.await();
 } catch (InterruptedException e1) {
- e1.printStackTrace();
+	e1.printStackTrace();
 }
 ~~~
 
 ### Aggregation Queries
 
+Default aggregation function is COUNT as defined by LogInsight API.
+
 #### Synchronous Query
 
 ~~~java
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244").gt("timestamp", "0").build();
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
 AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
 client.aggregateQuery(aqb.toUrlString());
 ~~~
@@ -78,20 +89,20 @@ client.aggregateQuery(aqb.toUrlString());
 
 ~~~java
 final CountDownLatch latch = new CountDownLatch(1);
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244").gt("timestamp", "0").build();
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
 AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
 client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsightApiError error) -> {
- if (error.isError()) {
-  // Handle Response
+	if (error.isError()) {
+		// Handle Response
 	} else {
 		// Handle Error
 		latch.countDown();
- }
+ 	}
 });
 try {
- latch.await();
+	latch.await();
 } catch (InterruptedException e1) {
-		e1.printStackTrace();
+	e1.printStackTrace();
 }
 ~~~
 
