@@ -10,17 +10,93 @@ LogInsight Java API provides a fluent API to query loginsight and as well ingest
 
 ### Prerequisites
 
-* Prereq 1
-* Prereq 2
-* Prereq 3
+* Java 8 JDK installed and set your JAVA_HOME to home of Java8 JDK
 
 ### Build & Run
 
-1. Step 1
-2. Step 2
-3. Step 3
+~~~bash
+$ ./gradlew assemble
+~~~
+
 
 ## Documentation
+
+### Connecting to LogInsight
+~~~java
+LogInsightClient client = new LogInsightClient(ip, user, password);
+client.connect();
+~~~
+
+### Ingestion of messages to LogInsight
+~~~java
+
+~~~
+
+### Message Queries
+
+#### Synchronous Query
+
+~~~java
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
+MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100).setConstraints(constraints);
+MessageQueryResponse messages = client.messageQuery(mqb.toUrlString());
+Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
+~~~
+
+#### Asynchronous Query with callbacks
+
+~~~java
+final CountDownLatch latch = new CountDownLatch(1);
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
+MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100).setConstraints(constraints);
+client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsightApiError error) -> {
+ if (error.isError()) {
+  // Handle error
+ } else {
+  // Handle response
+  latch.countDown();
+	}
+});
+try {
+ latch.await();
+} catch (InterruptedException e1) {
+ e1.printStackTrace();
+}
+~~~
+
+### Aggregation Queries
+
+#### Synchronous Query
+
+~~~java
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244").gt("timestamp", "0").build();
+AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
+client.aggregateQuery(aqb.toUrlString());
+~~~
+
+#### Asynchronous Query
+
+~~~java
+final CountDownLatch latch = new CountDownLatch(1);
+List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244").gt("timestamp", "0").build();
+AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
+client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsightApiError error) -> {
+ if (error.isError()) {
+  // Handle Response
+	} else {
+		// Handle Error
+		latch.countDown();
+ }
+});
+try {
+ latch.await();
+} catch (InterruptedException e1) {
+		e1.printStackTrace();
+}
+~~~
+
+
+
 
 ## Contributing
 
