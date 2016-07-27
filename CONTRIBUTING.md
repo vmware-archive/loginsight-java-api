@@ -2,9 +2,24 @@
 
 # Contributing to loginsight-java-api
 
+Thank you for your interest in loginsight-java-api. We look forward for your support. You can contribute in any of the following ways
+* Download and use it. "Star" the repository if you like the project
+* Test and Report bugs if you find any
+* Look at the pending issues https://github.com/vmware/loginsight-java-api/issues and contribute with code and documentation
+
 ## Community
 
 ## Getting Started
+
+* Download and install Java8 JDK
+* Set the JAVA_HOME to Java 8 JDK directory
+* Download and install Eclipse IDE (or choose an IDE you like)
+* Fork the reposity and make changes. Once changes are done make a Pull request. Please follow the instructions in "Contribution Flow"
+
+
+### Reporting Issues
+Please use github issues https://github.com/vmware/loginsight-java-api/issues to raise new feature requests or bugs.
+
 
 ## Contribution Flow
 
