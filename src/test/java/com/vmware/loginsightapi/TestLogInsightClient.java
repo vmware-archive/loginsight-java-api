@@ -41,7 +41,10 @@ public class TestLogInsightClient {
 
 	@Before
 	public void setUp() {
-		client = new LogInsightClient("10.152.215.3", "admin", "Vmware!23");
+		String ip = System.getenv("ip");
+		String user = System.getenv("user");
+		String password = System.getenv("password");
+		client = new LogInsightClient(ip, user, password);
 		client.connect();
 	}
 

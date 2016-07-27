@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.loginsightapi.core.AggregateResponse;
+import com.vmware.loginsightapi.core.AuthInfo;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
@@ -167,12 +168,16 @@ public class LogInsightClient implements AutoCloseable {
 		try {
 			Future<HttpResponse> future = asyncHttpClient.execute(httpPost, null);
 			response = future.get();
-			InputStream responseBody = response.getEntity().getContent();
-			String serverResponse = IOUtils.toString(responseBody, "UTF-8");
+			String serverResponse = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
 			logger.info("Auth response = " + serverResponse);
-			JSONObject jsonResponse = JSONObject.fromObject(serverResponse);
-			sessionId = jsonResponse.getString("sessionId");
-
+			if (response.getStatusLine().getStatusCode() == 200) {
+				AuthInfo authInfo = AuthInfo.fromJsonString(serverResponse);
+				sessionId = authInfo.getSessionId();
+			} else {
+				logger.error("Unable to authenticate. StatusCode=" + response.getStatusLine().getStatusCode());
+				logger.error("Unable to authenticate. " + serverResponse);
+				throw new AuthFailure("Connection to LogInsight failed. " + serverResponse);
+			}
 		} catch (InterruptedException ie) {
 			throw new AuthFailure("Connection to LogInsight failed", ie);
 		} catch (ExecutionException ee) {

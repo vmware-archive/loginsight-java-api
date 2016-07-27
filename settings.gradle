@@ -16,4 +16,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'loginsight-sdk'
+rootProject.name = 'loginsight-java-api'

@@ -13,13 +13,13 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.loginsightapi.ParseException;
 
-public class AuthResponse {
+public class AuthInfo {
 
 	private String userId;
 	private String sessionId;
 	private int ttl;
 
-	public AuthResponse() {
+	public AuthInfo() {
 	}
 
 	public String getUserId() {
@@ -45,10 +45,10 @@ public class AuthResponse {
 	public void setTtl(int ttl) {
 		this.ttl = ttl;
 	}
-	public static AuthResponse fromJsonString(String json) {
+	public static AuthInfo fromJsonString(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return mapper.readValue(json, AuthResponse.class);
+			return mapper.readValue(json, AuthInfo.class);
 		} catch (IOException e) {
 			throw new ParseException("Unable parse the auth response.", e);
 		}
