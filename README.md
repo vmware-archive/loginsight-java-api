@@ -4,6 +4,8 @@
 
 ## Overview
 
+LogInsight Java API provides a fluent API to query loginsight and as well ingest messages to LogInsight.
+ 
 ## Try it out
 
 ### Prerequisites
