@@ -83,6 +83,23 @@ Be sure to include any related GitHub issue references in the commit message.  S
 [GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown) for referencing issues
 and commits.
 
+### Closing issues with Commit Messages
+
+When a commit message contains the following keywords along with the issue number it will automatically close the issues.
+
+* close
+* closes
+* closed
+* fix
+* fixes
+* fixed
+* resolve
+* resolves
+* resolved
+
+For example, "This closes #34, closes #23" would close issues #34 and #23. For more information refer to [Closing Issues Via Commit Messages](https://help.github.com/articles/closing-issues-via-commit-messages/)
+
+
 ## Reporting Bugs and Creating Issues
 
 When opening a new issue, try to roughly follow the commit message format conventions above.
