@@ -35,3 +35,5 @@ bin/**
 .loadpath
 Servers/
 /bin/
+all.log
+
