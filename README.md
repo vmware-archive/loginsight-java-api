@@ -2,6 +2,8 @@
 
 # loginsight-java-api
 
+Please do not use this API in production as it is still in **beta phase**.
+
 ## Overview
 
 LogInsight Java API provides a fluent API to interact with VMware vRealize LogInsight 
