@@ -1,6 +1,6 @@
 /**
- * Copyright © 2016 VMware, Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the “License”); you may not 
+ * Copyright Â© 2016 VMware, Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the â€œLicenseâ€�); you may not 
  * use this file except in compliance with the License. You may obtain a copy of 
  * the License at http://www.apache.org/licenses/LICENSE-2.0
  * Some files may be comprised of various open source software components, each of which
@@ -11,7 +11,9 @@ package com.vmware.loginsightapi;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,29 +40,22 @@ public class TestLogInsightClient {
 
 	private LogInsightClient client;
 	private final static Logger logger = LoggerFactory.getLogger(TestLogInsightClient.class);
+	String ip;
+	String user;
+	String password;
 
 	@Before
 	public void setUp() {
-		String ip = System.getenv("ip");
-		String user = System.getenv("user");
-		String password = System.getenv("password");
-		client = new LogInsightClient(ip, user, password);
-		client.connect();
-	}
-
-	@Test
-	@Ignore
-	public void testConnection() {
-		try (LogInsightClient clt = new LogInsightClient("10.152.215.3", "admin", "Vmware!23")) {
-			clt.connect();
-			List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-					.gt("timestamp", "0").build();
-			MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
-					.setConstraints(constraints);
-			clt.messageQuery(mqb.toUrlString());
-		} catch (Exception e) {
-			System.out.println("Exception raised " + ExceptionUtils.getStackTrace(e));
+		ip = System.getenv("ip");
+		user = System.getenv("user");
+		password = System.getenv("password");
+		if (null == ip || null == user || null == password) {
+			throw new IllegalStateException("Missing environment variables");
 		}
+		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip, user, password);
+		LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy = new AsyncLogInsightConnectionStrategy();
+		client = new LogInsightClient(connectionStrategy, connectionConfig);
+		client.connect();
 	}
 
 	@Test
@@ -200,6 +195,9 @@ public class TestLogInsightClient {
 
 	@After
 	public void tearDown() {
+		if (null == ip || null == user || null == password) {
+			throw new IllegalStateException("Missing environment variables");
+		}
 		client.stopAsyncHttpClient();
 	}
 

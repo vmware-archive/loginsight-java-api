@@ -1,6 +1,6 @@
 /**
  * Copyright © 2016 VMware, Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the “License”); you may not 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
  * use this file except in compliance with the License. You may obtain a copy of 
  * the License at http://www.apache.org/licenses/LICENSE-2.0
  * Some files may be comprised of various open source software components, each of which
@@ -16,23 +16,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
-//import javax.net.ssl.SSLSocketFactory;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 //import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,62 +37,36 @@ import com.vmware.loginsightapi.core.IngestionResponse;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 import com.vmware.loginsightapi.util.AsyncCallback;
 import com.vmware.loginsightapi.util.Callback;
-
-import net.sf.json.JSONObject;
+//import javax.net.ssl.SSLSocketFactory;
 
 public class LogInsightClient implements AutoCloseable {
-
-	public static final String DEFAULT_SCHEME = "https";
-	public static final int DEFAULT_PORT = 443;
-	public static final int DEFAULT_INGESTION_PORT = 9543;
-	public static final String DEFAULT_INGESTION_AGENT_ID = "54947df8-0e9e-4471-a2f9-9af509fb5889";
-
-	private final String scheme;
-	private final int port;
+	
+	public static final String DEFAULT_INGESTION_AGENT_ID = "54947df8-0e9e-4471-a2f9-9af509fb5889";	
 
 	public static final String API_URL_SESSION_PATH = "/api/v1/sessions";
 	public static final String API_URL_EVENTS_PATH = "/api/v1/events/";
 	public static final String API_URL_AGGREGATED_EVENTS_PATH = "/api/v1/aggregated-events/";
 	public static final String API_URL_INGESTION = "/api/v1/messages/ingest/";
-
-	private final String host;
-
-	private final String userName;
-
-	private final String password;
-
-	private final int ingestionPort;
-
+	
 	private String sessionId;
-
-	// private static SSLSocketFactory sslSocketFactory;
-
-	private CloseableHttpAsyncClient asyncHttpClient;
-
+	
+	private final LogInsightConnectionStrategy connectionStrategy;
+	private final LogInsightConnectionConfig connectionConfig;
+	
+	private final CloseableHttpAsyncClient asyncHttpClient;
+	
 	// private ObjectMapper mapper = new ObjectMapper();
 
 	private final static Logger logger = LoggerFactory.getLogger(LogInsightClient.class);
 
-	public LogInsightClient(String host, String userName, String password) {
-		this.host = host;
-		this.userName = userName;
-		this.password = password;
-		this.scheme = DEFAULT_SCHEME;
-		this.port = DEFAULT_PORT;
-		this.ingestionPort = DEFAULT_INGESTION_PORT;
+	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy, LogInsightConnectionConfig connectionConfig) {
+		this.connectionStrategy = connectionStrategy;
+		this.connectionConfig = connectionConfig;
+		asyncHttpClient = connectionStrategy.getHttpClient();
 	}
-
-	public LogInsightClient(String host, String userName, String password, String scheme, int port, int ingestionPort) {
-		this.host = host;
-		this.scheme = scheme;
-		this.port = port;
-		this.userName = userName;
-		this.password = password;
-		this.ingestionPort = ingestionPort;
-	}
-
+	
 	public String apiUrl() {
-		return scheme + "://" + host + ":" + port;
+		return connectionConfig.getScheme() + "://" + connectionConfig.getHost() + ":" + connectionConfig.getPort();
 	}
 
 	public String sessionUrl() {
@@ -122,7 +90,7 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	public String ingestionApiUrl() {
-		return scheme + "://" + host + ":" + ingestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
+		return connectionConfig.getScheme() + "://" + connectionConfig.getHost() + ":" + connectionConfig.getIngestionPort() + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
 	}
 
 	public static List<Header> getDefaultHeaders() {
@@ -133,21 +101,7 @@ public class LogInsightClient implements AutoCloseable {
 		headers.add(new BasicHeader("x-li-timestamp", timestamp));
 		return headers;
 	}
-
-	protected void startAsyncHttpClient() {
-		// Trust own CA and all self-signed certs
-		SSLContext sslcontext = NonValidatingSSLSocketFactory.getSSLContext();
-		// Allow TLSv1 protocol only
-
-		SSLIOSessionStrategy sslSessionStrategy = new SSLIOSessionStrategy(sslcontext, new String[] { "TLSv1" }, null,
-				new NoopHostnameVerifier());
-		List<Header> headers = LogInsightClient.getDefaultHeaders();
-
-		asyncHttpClient = HttpAsyncClients.custom().setSSLStrategy(sslSessionStrategy).setDefaultHeaders(headers)
-				.build();
-		asyncHttpClient.start();
-	}
-
+	
 	/**
 	 * Connects to LogInsight and initialize AsyncHttpClient with LogInsight
 	 * session Id. This method should be called after a successful
@@ -156,9 +110,8 @@ public class LogInsightClient implements AutoCloseable {
 	 *
 	 */
 	public void connect() throws AuthFailure {
-
-		this.startAsyncHttpClient();
-		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userName, password);
+		
+		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", connectionConfig.getUserName(), connectionConfig.getPassword());
 
 		HttpPost httpPost = new HttpPost(sessionUrl());
 		httpPost.addHeader("Accept", "application/json");
