@@ -16,23 +16,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
-//import javax.net.ssl.SSLSocketFactory;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 //import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +37,7 @@ import com.vmware.loginsightapi.core.IngestionResponse;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 import com.vmware.loginsightapi.util.AsyncCallback;
 import com.vmware.loginsightapi.util.Callback;
+//import javax.net.ssl.SSLSocketFactory;
 
 public class LogInsightClient implements AutoCloseable {
 	
