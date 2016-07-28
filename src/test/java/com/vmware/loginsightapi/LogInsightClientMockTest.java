@@ -15,7 +15,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,12 +38,15 @@ public class LogInsightClientMockTest {
 	private LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy;
 	@Mock
 	private CloseableHttpAsyncClient asyncHttpClient;
+	String ip;
+	String user;
+	String password;
 
 	@Before
 	public void setUp() {
-		String ip = System.getenv("ip");
-		String user = System.getenv("user");
-		String password = System.getenv("password");
+		ip = System.getenv("ip");
+		user = System.getenv("user");
+		password = System.getenv("password");
 		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip, user, password);
 		when(connectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
 		client = new LogInsightClient(connectionStrategy, connectionConfig);
@@ -63,24 +66,10 @@ public class LogInsightClientMockTest {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_RESPONSE_EXPECTED, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);			
 			client.connect();
+			assertEquals("Invalid session id!!", "qyOLWEe7f/GjdM1WnczrCeQure97B/NpTbWTeqqYPBd1AYMf9cMNfQYqltITI4ffPMx822Sz9i/X47t8VwsDb0oGckclJUdn83cyIPk6WlsOpI4Yjw6WpurAnv9RhDsYSzKhAMzskzhTOJKfDHZjWR5v576WwtJA71wqI7igFrG91LG5c/3GfzMb68sUHF6hV+meYtGS4A1y/lUItvfkqTTAxBtTCZNoKrvCJZ4R+b6vuAAYoBNSWL7ycIy2LsALrVFxftAkA8n9DBAZYA9T5A==", client.getSessionId());
 		} catch (Exception e) {
 			System.out.println("Exception raised " + ExceptionUtils.getStackTrace(e));
 		}
-	}
-	
-	//@Test
-	public void testMessageQuery() {
-		when(connectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
-		long startTime = System.nanoTime();
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
-				.setConstraints(constraints);
-		MessageQueryResponse messages = client.messageQuery(mqb.toUrlString());
-		Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
-		System.out.println("Returned " + messages.getEvents().size() + " messages");
-		long duration = System.nanoTime() - startTime;
-		logger.info("duration=" + duration);
 	}
 
 
