@@ -34,3 +34,4 @@ bin/**
 .settings/
 .loadpath
 Servers/
+/bin/
