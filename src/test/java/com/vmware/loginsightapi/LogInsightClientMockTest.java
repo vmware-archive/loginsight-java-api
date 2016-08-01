@@ -1,12 +1,17 @@
 package com.vmware.loginsightapi;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpEntity;
@@ -15,17 +20,13 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.vmware.loginsightapi.core.MessageQueryResponse;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogInsightClientMockTest {
@@ -38,16 +39,25 @@ public class LogInsightClientMockTest {
 	private LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy;
 	@Mock
 	private CloseableHttpAsyncClient asyncHttpClient;
-	String ip;
+	String host;
 	String user;
 	String password;
 
 	@Before
 	public void setUp() {
-		ip = System.getenv("ip");
-		user = System.getenv("user");
-		password = System.getenv("password");
-		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip, user, password);
+		//Load the properties file for loginsight connection.
+		Properties connectionConfig = new Properties();
+		try {
+			connectionConfig.load(getClass().getResourceAsStream("/config.properties"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		host = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST);
+		user = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_USER);
+		password = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PASSWORD);
+		if (StringUtils.isEmpty(password)) {
+			password = System.getenv(LogInsightConnectionConfig.LOGINSIGHT_PASSWORD);
+		}
 		when(connectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
 		client = new LogInsightClient(connectionStrategy, connectionConfig);
 	}
@@ -65,7 +75,7 @@ public class LogInsightClientMockTest {
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_RESPONSE_EXPECTED, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);			
-			client.connect();
+			client.connect(user, password);
 			assertEquals("Invalid session id!!", "qyOLWEe7f/GjdM1WnczrCeQure97B/NpTbWTeqqYPBd1AYMf9cMNfQYqltITI4ffPMx822Sz9i/X47t8VwsDb0oGckclJUdn83cyIPk6WlsOpI4Yjw6WpurAnv9RhDsYSzKhAMzskzhTOJKfDHZjWR5v576WwtJA71wqI7igFrG91LG5c/3GfzMb68sUHF6hV+meYtGS4A1y/lUItvfkqTTAxBtTCZNoKrvCJZ4R+b6vuAAYoBNSWL7ycIy2LsALrVFxftAkA8n9DBAZYA9T5A==", client.getSessionId());
 		} catch (Exception e) {
 			System.out.println("Exception raised " + ExceptionUtils.getStackTrace(e));

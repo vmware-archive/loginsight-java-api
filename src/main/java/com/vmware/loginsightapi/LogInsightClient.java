@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class LogInsightClient implements AutoCloseable {
 	private String sessionId;
 	
 	private final LogInsightConnectionStrategy connectionStrategy;
-	private final LogInsightConnectionConfig connectionConfig;
+	private final Properties connectionConfig;
 	
 	private final CloseableHttpAsyncClient asyncHttpClient;
 	
@@ -59,14 +60,14 @@ public class LogInsightClient implements AutoCloseable {
 
 	private final static Logger logger = LoggerFactory.getLogger(LogInsightClient.class);
 
-	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy, LogInsightConnectionConfig connectionConfig) {
+	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy, Properties connectionConfig) {
 		this.connectionStrategy = connectionStrategy;
 		this.connectionConfig = connectionConfig;
 		asyncHttpClient = connectionStrategy.getHttpClient();
 	}
 	
 	public String apiUrl() {
-		return connectionConfig.getScheme() + "://" + connectionConfig.getHost() + ":" + connectionConfig.getPort();
+		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT);
 	}
 
 	public String sessionUrl() {
@@ -90,7 +91,7 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	public String ingestionApiUrl() {
-		return connectionConfig.getScheme() + "://" + connectionConfig.getHost() + ":" + connectionConfig.getIngestionPort() + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
+		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT) + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
 	}
 
 	public static List<Header> getDefaultHeaders() {
@@ -109,9 +110,9 @@ public class LogInsightClient implements AutoCloseable {
 	 * proper session id.
 	 *
 	 */
-	public void connect() throws AuthFailure {
+	public void connect(String userName, String password) throws AuthFailure {
 		
-		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", connectionConfig.getUserName(), connectionConfig.getPassword());
+		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userName, password);
 
 		HttpPost httpPost = new HttpPost(sessionUrl());
 		httpPost.addHeader("Accept", "application/json");

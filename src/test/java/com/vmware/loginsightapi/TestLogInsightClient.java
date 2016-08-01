@@ -52,10 +52,12 @@ public class TestLogInsightClient {
 		if (null == ip || null == user || null == password) {
 			throw new IllegalStateException("Missing environment variables");
 		}
-		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip, user, password);
+		
+	
+		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip);
 		LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy = new AsyncLogInsightConnectionStrategy();
 		client = new LogInsightClient(connectionStrategy, connectionConfig);
-		client.connect();
+		client.connect(user, password);
 	}
 
 	@Test
