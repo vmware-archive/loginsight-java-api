@@ -10,35 +10,82 @@ package com.vmware.loginsightapi.core;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.loginsightapi.ParseException;
 
+/**
+ * Class to represent the response of event group query
+ *
+ */
 public class AggregateResponse {
 	
 	private boolean complete;
 	private int duration;
 	private List<AggregateResponseBin> bins;
+	
+	/**
+	 * Indicates whether query is complete or not.
+	 * 
+	 * @return true or false
+	 */
 	public boolean isComplete() {
 		return complete;
 	}
+	
+	/**
+	 * Setter for query complete indicator
+	 * 
+	 * @param complete true or false
+	 */
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 	}
+	
+	/**
+	 * Getter for query duration
+	 * 
+	 * @return duration of the query
+	 */
 	public int getDuration() {
 		return duration;
 	}
+	
+	/**
+	 * Setter for query duration
+	 * 
+	 * @param duration duration of the query
+	 */
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
+	
+	/**
+	 * Returns the list of aggregate bins from the response.
+	 * 
+	 * @return list of aggregate bins
+	 * @see AggregateResponseBin
+	 */
 	public List<AggregateResponseBin> getBins() {
 		return bins;
 	}
+	
+	/**
+	 * Setter for aggregate bins received in the event group query response.
+	 * 
+	 * @param bins List of aggregate response bins
+	 * @see AggregateResponseBin
+	 */
 	public void setBins(List<AggregateResponseBin> bins) {
 		this.bins = bins;
 	}
 	
+	/**
+	 * Static method to De-serialize a JSON string to AggregateResponse structure
+	 * 
+	 * @param json JSON string (representing the AggregateResponse)
+	 * @return AggregateResponse
+	 */
 	public static AggregateResponse fromJsonString(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

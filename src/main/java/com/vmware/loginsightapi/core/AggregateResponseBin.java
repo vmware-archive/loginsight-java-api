@@ -8,26 +8,63 @@
  */
 package com.vmware.loginsightapi.core;
 
+/**
+ * Class representing the each bin of aggregate response.
+ *
+ */
 public class AggregateResponseBin {
 	
 	private Long minTimestamp;
 	private Long maxTimestamp;
 	private Long value;
+	
+	/**
+	 * Bin's minimum (starting) Timestamp
+	 * @return timestamp in millis
+	 */
 	public Long getMinTimestamp() {
 		return minTimestamp;
 	}
+	
+	/**
+	 * Sets minimum (starting) Timestamp for bin.
+	 * @param minTimestamp minimum (starting) time stamp
+	 */
 	public void setMinTimestamp(Long minTimestamp) {
 		this.minTimestamp = minTimestamp;
 	}
+	
+	/**
+	 * Bin's maximum (end) Timestamp
+	 * 
+	 * @return timestamp in millis
+	 */
 	public Long getMaxTimestamp() {
 		return maxTimestamp;
 	}
+	
+	/**
+	 * Sets maximum (end) Timestamp for bin.
+	 * 
+	 * @param maxTimestamp maximum (end) time stamp
+	 */
 	public void setMaxTimestamp(Long maxTimestamp) {
 		this.maxTimestamp = maxTimestamp;
 	}
+	
+	/**
+	 * Bin value
+	 * @return value in the bin
+	 */
 	public Long getValue() {
 		return value;
 	}
+	
+	/**
+	 * Setter for Bin value
+	 * 
+	 * @param value value in the bin
+	 */
 	public void setValue(Long value) {
 		this.value = value;
 	}

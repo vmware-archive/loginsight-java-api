@@ -29,7 +29,6 @@ import org.apache.http.entity.StringEntity;
 //import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,67 +38,144 @@ import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 import com.vmware.loginsightapi.util.AsyncCallback;
-import com.vmware.loginsightapi.util.Callback;
-//import javax.net.ssl.SSLSocketFactory;
 
+/**
+ * LogInsight client class providing mechanisms to connect to LogInsight, Query
+ * loginsight and ingest messages to loginsight
+ * 
+ */
 public class LogInsightClient implements AutoCloseable {
-	
-	public static final String DEFAULT_INGESTION_AGENT_ID = "54947df8-0e9e-4471-a2f9-9af509fb5889";	
 
+	/**
+	 * DEFAULT_INGESTION_AGENT_ID. Required for LogInsight Ingestion API
+	 */
+	public static final String DEFAULT_INGESTION_AGENT_ID = "54947df8-0e9e-4471-a2f9-9af509fb5889";
+
+	/**
+	 * Relative path of the sessions url
+	 */
 	public static final String API_URL_SESSION_PATH = "/api/v1/sessions";
+
+	/**
+	 * Relative path of the event query url
+	 */
 	public static final String API_URL_EVENTS_PATH = "/api/v1/events/";
+
+	/**
+	 * Relative path of the event group query (aggregate query) url
+	 */
 	public static final String API_URL_AGGREGATED_EVENTS_PATH = "/api/v1/aggregated-events/";
+
+	/**
+	 * Relative path of the ingestion url
+	 */
 	public static final String API_URL_INGESTION = "/api/v1/messages/ingest/";
-	
+
 	private String sessionId;
-	
+
 	private final LogInsightConnectionStrategy connectionStrategy;
 	private final Properties connectionConfig;
-	
+
 	private final CloseableHttpAsyncClient asyncHttpClient;
-	
-	// private ObjectMapper mapper = new ObjectMapper();
 
 	private final static Logger logger = LoggerFactory.getLogger(LogInsightClient.class);
 
-	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy, Properties connectionConfig) {
+	/**
+	 * Builds LogInsightClient object with connection strategy and configuration
+	 * properties
+	 * 
+	 * @param connectionStrategy
+	 *            Connection strategy to use
+	 * @param connectionConfig
+	 *            Properties configuration
+	 */
+	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy,
+			Properties connectionConfig) {
 		this.connectionStrategy = connectionStrategy;
 		this.connectionConfig = connectionConfig;
 		asyncHttpClient = connectionStrategy.getHttpClient();
 	}
-	
+
+	/**
+	 * Constructs and returns the API URL
+	 * 
+	 * @return api url for query
+	 */
 	public String apiUrl() {
-		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT);
+		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://"
+				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":"
+				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT);
 	}
 
+	/**
+	 * Compute and return the sessionUrl
+	 * 
+	 * @return session Url
+	 */
 	public String sessionUrl() {
 		return this.apiUrl() + API_URL_SESSION_PATH;
 	}
 
+	/**
+	 * Compute and return message query Url
+	 * 
+	 * @return Message Query URL
+	 */
 	public String messageQueryUrl() {
 		return this.apiUrl();
 	}
 
+	/**
+	 * Compute and return message query full url
+	 * 
+	 * @param url
+	 *            relativeUrl of the message query
+	 * @return full url of the message query
+	 */
 	public String messageQueryFullUrl(String url) {
 		return this.apiUrl() + url;
 	}
 
+	/**
+	 * Compute and return aggregate query url
+	 * 
+	 * @return Aggregate Query Url
+	 */
 	public String aggregateQueryUrl() {
 		return this.apiUrl();
 	}
 
+	/**
+	 * Compute and return aggregate query full url
+	 * 
+	 * @param url
+	 *            relativeUrl of the aggregate query
+	 * @return full url of the aggregate query
+	 */
 	public String aggregateQueryFullUrl(String url) {
 		return this.apiUrl() + url;
 	}
 
+	/**
+	 * Compute and return ingestion api url
+	 * 
+	 * @return url of the ingestion API
+	 */
 	public String ingestionApiUrl() {
 		int logInsightIngestionPort = 0;
 		if (StringUtils.isEmpty(connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT))) {
 			logInsightIngestionPort = LogInsightConnectionConfig.DEFAULT_INGESTION_PORT;
 		}
-		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + logInsightIngestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
+		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://"
+				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":"
+				+ logInsightIngestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
 	}
 
+	/**
+	 * Get the default list of headers for queries
+	 * 
+	 * @return list of headers
+	 */
 	public static List<Header> getDefaultHeaders() {
 		List<Header> headers = new ArrayList<>();
 		headers.add(new BasicHeader("Content-Type", "application/json"));
@@ -108,16 +184,22 @@ public class LogInsightClient implements AutoCloseable {
 		headers.add(new BasicHeader("x-li-timestamp", timestamp));
 		return headers;
 	}
-	
+
 	/**
 	 * Connects to LogInsight and initialize AsyncHttpClient with LogInsight
 	 * session Id. This method should be called after a successful
 	 * authentication with LogInsight, so that {@code getSessionId} returns a
 	 * proper session id.
-	 *
+	 * 
+	 * @param userName
+	 *            name of the user
+	 * @param password
+	 *            password of the user
+	 * @throws AuthFailure
+	 *             authentication failure exception
 	 */
 	public void connect(String userName, String password) throws AuthFailure {
-		
+
 		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userName, password);
 
 		HttpPost httpPost = new HttpPost(sessionUrl());
@@ -169,6 +251,8 @@ public class LogInsightClient implements AutoCloseable {
 	 *            text/CONTAINS+Test/timestamp/GT+0
 	 *
 	 * @return a JSONObject representing the LI response
+	 * @throws LogInsightApiException
+	 *             general LogInsightApiException
 	 */
 	public MessageQueryResponse messageQuery(String apiUrl) throws LogInsightApiException {
 		HttpGet request = null;
@@ -201,47 +285,16 @@ public class LogInsightClient implements AutoCloseable {
 		}
 	}
 
-	public void messageQueryAsync(String apiUrl, Callback<MessageQueryResponse> callback)
-			throws LogInsightApiException {
-		HttpGet request = null;
-//		final CountDownLatch latch = new CountDownLatch(1);
-		try {
-			request = getHttpRequest(apiUrl, false);
-			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
-
-				@Override
-				public void completed(HttpResponse httpResponse) {
-
-					try {
-						InputStream responseBody = httpResponse.getEntity().getContent();
-						String responseString = IOUtils.toString(responseBody, "UTF-8");
-						logger.warn("Response: " + responseString);
-						callback.completed(MessageQueryResponse.fromJsonString(responseString));
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-						callback.failed(new LogInsightApiException(e));
-					}
-
-				}
-
-				@Override
-				public void failed(Exception ex) {
-					callback.failed(new LogInsightApiException(ex));
-				}
-
-				@Override
-				public void cancelled() {
-					callback.cancelled();
-				}
-
-			});
-			logger.info("Finished completely!!!");
-		} catch (Exception ie) {
-			throw new LogInsightApiException("Message query failed", ie);
-		}
-	}
-	
+	/**
+	 * Performs message query. Accepts a callback
+	 * 
+	 * @param apiUrl
+	 *            relative url of the API
+	 * @param callback
+	 *            callback
+	 * @throws LogInsightApiException
+	 *             Exception
+	 */
 	public void messageQuery(String apiUrl, AsyncCallback<MessageQueryResponse, LogInsightApiError> callback)
 			throws LogInsightApiException {
 		HttpGet request = null;
@@ -255,9 +308,10 @@ public class LogInsightClient implements AutoCloseable {
 					try {
 						InputStream responseBody = httpResponse.getEntity().getContent();
 						String responseString = IOUtils.toString(responseBody, "UTF-8");
-						logger.warn("Response: " + responseString);						
-						callback.completed(MessageQueryResponse.fromJsonString(responseString), LogInsightApiError.create());
-						
+						logger.warn("Response: " + responseString);
+						callback.completed(MessageQueryResponse.fromJsonString(responseString),
+								LogInsightApiError.create());
+
 					} catch (IOException e) {
 						e.printStackTrace();
 						callback.completed(null, new LogInsightApiError("Unable to process the query response", e));
@@ -282,6 +336,15 @@ public class LogInsightClient implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Performs aggregate query
+	 * 
+	 * @param apiUrl
+	 *            relative url of the API
+	 * @return AggregateResponse
+	 * @throws LogInsightApiException
+	 *             exception
+	 */
 	public AggregateResponse aggregateQuery(String apiUrl) throws LogInsightApiException {
 		HttpGet request = null;
 		try {
@@ -291,7 +354,7 @@ public class LogInsightClient implements AutoCloseable {
 			HttpResponse httpResponse = future.get();
 			logger.debug("Aggregate Response: " + httpResponse.getStatusLine());
 			System.out.println("Aggregate Response: " + httpResponse.getStatusLine());
-			
+
 			if ((httpResponse.getStatusLine().getStatusCode() == 401)
 					|| (httpResponse.getStatusLine().getStatusCode() == 440)) {
 				logger.warn("Session expired, retrying the request after authentication");
@@ -311,7 +374,15 @@ public class LogInsightClient implements AutoCloseable {
 			throw new LogInsightApiException("Aggregation query failed", e);
 		}
 	}
-	
+
+	/**
+	 * Performs aggregate query. Accepts callback
+	 * 
+	 * @param apiUrl
+	 *            relative url of the API
+	 * @param callback
+	 *            callback
+	 */
 	public void aggregateQuery(String apiUrl, AsyncCallback<AggregateResponse, LogInsightApiError> callback) {
 		HttpGet request = null;
 		try {
@@ -324,9 +395,10 @@ public class LogInsightClient implements AutoCloseable {
 
 					try {
 						String responseString = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
-						logger.warn("Response: " + responseString);						
-						callback.completed(AggregateResponse.fromJsonString(responseString), LogInsightApiError.create());
-						
+						logger.warn("Response: " + responseString);
+						callback.completed(AggregateResponse.fromJsonString(responseString),
+								LogInsightApiError.create());
+
 					} catch (IOException e) {
 						e.printStackTrace();
 						callback.completed(null, new LogInsightApiError("Unable to process the query response", e));
@@ -350,6 +422,17 @@ public class LogInsightClient implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Ingest messages to loginsight
+	 * 
+	 * @param messages
+	 *            IngestionRequest object with list of messages
+	 * @return IngestionResponse object
+	 * @throws LogInsightApiException
+	 *             Api exception
+	 * @see IngestionRequest
+	 * @see IngestionResponse
+	 */
 	public IngestionResponse injest(IngestionRequest messages) throws LogInsightApiException {
 
 		// IngestionResponse response = null;
@@ -386,6 +469,14 @@ public class LogInsightClient implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Returns sessionId if available. Throws AuthFailure in case sessionId not
+	 * available.
+	 * 
+	 * @return session id
+	 * @throws AuthFailure
+	 *             authentication failure
+	 */
 	public String getSessionId() throws AuthFailure {
 		if (sessionId == null) {
 			throw new AuthFailure("Invalid session id");
@@ -393,28 +484,47 @@ public class LogInsightClient implements AutoCloseable {
 		return sessionId;
 	}
 
+	/**
+	 * Close the httpclient connection
+	 */
 	@Override
 	public void close() throws Exception {
 		this.stopAsyncHttpClient();
 	}
-	
+
+	/**
+	 * Get the session headers
+	 * 
+	 * @return list of headers
+	 */
 	public List<Header> getSessionHeaders() {
-		List<Header> headers = new ArrayList<>();		
+		List<Header> headers = new ArrayList<>();
 		headers.add(new BasicHeader("X-li-session-id", getSessionId()));
 		return headers;
 	}
-	
+
+	/**
+	 * Add headers to HttpGet
+	 * 
+	 * @param request
+	 *            HttpGet Object
+	 * @param headers
+	 *            adds the list of headers to be added
+	 */
 	public void addHeaders(HttpGet request, List<Header> headers) {
 		for (Header header : headers) {
 			request.addHeader(header);
 		}
 	}
-	
+
 	/**
 	 * Returns a properly created instance of HttPGet based on the provided URL
+	 * 
 	 * @param apiUrl
-	 * @param isAggregateQuery Is it is normal query or aggregate query
-	 * @return
+	 *            base url of the api
+	 * @param isAggregateQuery
+	 *            Is it is normal query or aggregate query
+	 * @return HttpGet request
 	 */
 	public HttpGet getHttpRequest(String apiUrl, boolean isAggregateQuery) {
 		HttpGet request = null;

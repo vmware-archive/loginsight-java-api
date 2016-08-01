@@ -10,7 +10,22 @@ package com.vmware.loginsightapi;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 
+/**
+ * LogInsightConnectionStrategy defines the connection implementation to be
+ * used. Implement this class to the return the custom build HttpClient for use
+ * in LogInsightClient
+ * 
+ * @param <T>
+ *            Customized CloseableHttpAsyncClient or CloseableHttpClient class
+ */
 public interface LogInsightConnectionStrategy<T extends CloseableHttpAsyncClient> {
+	
+	/**
+	 * Return an instance of HttpClient Implement this method to return a custom
+	 * HttpClient instance.
+	 * 
+	 * @return Instance of custom configured HttpClient
+	 */
 	T getHttpClient();
 
 }

@@ -8,10 +8,22 @@
  */
 package com.vmware.loginsightapi;
 
+/**
+ * MessageQueryBuilder extends from QueryBuilder and overwrites toUrlString.
+ */
 public class MessageQueryBuilder extends QueryBuilder {
-	
+
+	/**
+	 * Relative URL path for events query
+	 */
 	public static final String API_URL_EVENTS_PATH = "/api/v1/events/";
 
+	/**
+	 * Builds the url segment based on the field constraints and other url
+	 * parameters supplied.
+	 * 
+	 * @return partial url string
+	 */
 	@Override
 	public String toUrlString() {
 		String path = buildPathSegment();
@@ -23,7 +35,7 @@ public class MessageQueryBuilder extends QueryBuilder {
 		if (!params.isEmpty()) {
 			url += "?" + params;
 		}
-		return url;	
+		return url;
 	}
 
 }

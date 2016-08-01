@@ -8,27 +8,46 @@
  */
 package com.vmware.loginsightapi;
 
+/**
+ * Auth Failure Exception
+ */
+
 public class AuthFailure extends RuntimeException {
 
 	private static final long serialVersionUID = -5203326099531622673L;
 
+	/**
+	 * Default constructor
+	 */
 	public AuthFailure() {
 	}
 
+	/**
+	 * Constructs AuthFailure with provided error message
+	 * 
+	 * @param message exception message
+	 */
 	public AuthFailure(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructs AuthFailure object from Throwable
+	 * 
+	 * @param cause cause of the failure (Throwable)
+	 */
 	public AuthFailure(Throwable cause) {
 		super(cause);
 	}
 
+	/**
+	 * Constructs AuthFailure object from error message and Throwable
+	 * 
+	 * @param message exception message
+	 * @param cause   cause of the failure (Throwable)
+	 */
 	public AuthFailure(String message, Throwable cause) {
 		super(message, cause);
-	}
-
-	public AuthFailure(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }
