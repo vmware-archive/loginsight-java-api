@@ -172,12 +172,7 @@ public class LogInsightClient implements AutoCloseable {
 	public MessageQueryResponse messageQuery(String apiUrl) throws LogInsightApiException {
 		HttpGet request = null;
 		try {
-			request = new HttpGet(messageQueryUrl() + apiUrl);
-			String timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			request.addHeader("Content-Type", "application/json");
-			request.addHeader("Accept", "application/json");
-			request.addHeader("X-li-session-id", getSessionId());
-			request.addHeader("x-li-timestamp", timestamp);
+			request = getHttpRequest(apiUrl, false);
 			Future<HttpResponse> future = asyncHttpClient.execute(request, null);
 			HttpResponse httpResponse = future.get();
 			logger.debug("Response: " + httpResponse.getStatusLine());
@@ -185,14 +180,11 @@ public class LogInsightClient implements AutoCloseable {
 				InputStream responseBody = httpResponse.getEntity().getContent();
 				String responseString = IOUtils.toString(responseBody, "UTF-8");
 				logger.warn("Response: " + responseString);
-				System.out.println("Response: " + responseString);
 				return MessageQueryResponse.fromJsonString(responseString);
 			}
 			if ((httpResponse.getStatusLine().getStatusCode() == 401)
 					|| (httpResponse.getStatusLine().getStatusCode() == 440)) {
 				logger.warn("Session expired, retrying the request after authentication");
-				System.out.println(
-						"Session expired, retrying the request after authentication " + httpResponse.getStatusLine());
 				sessionId = null;
 				throw new AuthFailure("Invalid session id. Message query failed.");
 			} else {
@@ -213,13 +205,7 @@ public class LogInsightClient implements AutoCloseable {
 		HttpGet request = null;
 //		final CountDownLatch latch = new CountDownLatch(1);
 		try {
-			request = new HttpGet(messageQueryUrl() + apiUrl);
-			String timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			request.addHeader("Content-Type", "application/json");
-			request.addHeader("Accept", "application/json");
-			request.addHeader("X-li-session-id", getSessionId());
-			request.addHeader("x-li-timestamp", timestamp);
-			MessageQueryResponse response = null;
+			request = getHttpRequest(apiUrl, false);
 			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
 
 				@Override
@@ -259,13 +245,7 @@ public class LogInsightClient implements AutoCloseable {
 			throws LogInsightApiException {
 		HttpGet request = null;
 		try {
-			request = new HttpGet(messageQueryUrl() + apiUrl);
-			String timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			request.addHeader("Content-Type", "application/json");
-			request.addHeader("Accept", "application/json");
-			request.addHeader("X-li-session-id", getSessionId());
-			request.addHeader("x-li-timestamp", timestamp);
-			MessageQueryResponse response = null;
+			request = getHttpRequest(apiUrl, false);
 			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
 
 				@Override
@@ -304,12 +284,7 @@ public class LogInsightClient implements AutoCloseable {
 	public AggregateResponse aggregateQuery(String apiUrl) throws LogInsightApiException {
 		HttpGet request = null;
 		try {
-			request = new HttpGet(aggregateQueryUrl() + apiUrl);
-			String timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			request.addHeader("Content-Type", "application/json");
-			request.addHeader("Accept", "application/json");
-			request.addHeader("X-li-session-id", getSessionId());
-			request.addHeader("x-li-timestamp", timestamp);
+			request = getHttpRequest(apiUrl, true);
 			System.out.println("Querying " + aggregateQueryUrl() + apiUrl);
 			Future<HttpResponse> future = asyncHttpClient.execute(request, null);
 			HttpResponse httpResponse = future.get();
@@ -319,14 +294,12 @@ public class LogInsightClient implements AutoCloseable {
 			if ((httpResponse.getStatusLine().getStatusCode() == 401)
 					|| (httpResponse.getStatusLine().getStatusCode() == 440)) {
 				logger.warn("Session expired, retrying the request after authentication");
-				System.out.println("Aggregate Query Session expired, retrying the request after authentication");
 				sessionId = null;
 				throw new AuthFailure("Session expired. Received " + httpResponse.getStatusLine() + " from LogInsight");
 			} else {
 				InputStream responseBody = httpResponse.getEntity().getContent();
 				String responseString = IOUtils.toString(responseBody, "UTF-8");
 				logger.warn("Response: " + responseString);
-				System.out.println("Response: " + responseString);
 				return AggregateResponse.fromJsonString(responseString);
 			}
 		} catch (InterruptedException ie) {
@@ -341,13 +314,8 @@ public class LogInsightClient implements AutoCloseable {
 	public void aggregateQuery(String apiUrl, AsyncCallback<AggregateResponse, LogInsightApiError> callback) {
 		HttpGet request = null;
 		try {
-			request = new HttpGet(aggregateQueryUrl() + apiUrl);
-			String timestamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-			request.addHeader("Content-Type", "application/json");
-			request.addHeader("Accept", "application/json");
-			request.addHeader("X-li-session-id", getSessionId());
-			request.addHeader("x-li-timestamp", timestamp);
-			System.out.println("Querying " + aggregateQueryUrl() + apiUrl);
+			request = getHttpRequest(apiUrl, true);
+			logger.debug("Querying " + aggregateQueryUrl() + apiUrl);
 			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
 
 				@Override
@@ -427,6 +395,40 @@ public class LogInsightClient implements AutoCloseable {
 	@Override
 	public void close() throws Exception {
 		this.stopAsyncHttpClient();
+	}
+	
+	public List<Header> getSessionHeaders() {
+		List<Header> headers = new ArrayList<>();		
+		headers.add(new BasicHeader("X-li-session-id", getSessionId()));
+		return headers;
+	}
+	
+	public void addHeaders(HttpGet request, List<Header> headers) {
+		for (Header header : headers) {
+			request.addHeader(header);
+		}
+	}
+	
+	/**
+	 * Returns a properly created instance of HttPGet based on the provided URL
+	 * @param apiUrl
+	 * @param isAggregateQuery Is it is normal query or aggregate query
+	 * @return
+	 */
+	public HttpGet getHttpRequest(String apiUrl, boolean isAggregateQuery) {
+		HttpGet request = null;
+		try {
+			if (isAggregateQuery) {
+				request = new HttpGet(aggregateQueryUrl() + apiUrl);
+			} else {
+				request = new HttpGet(messageQueryUrl() + apiUrl);
+			}
+		} catch (IllegalArgumentException e) {
+			throw e;
+		}
+		addHeaders(request, getDefaultHeaders());
+		addHeaders(request, getSessionHeaders());
+		return request;
 	}
 
 }

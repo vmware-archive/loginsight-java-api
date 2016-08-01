@@ -127,6 +127,7 @@ public class LogInsightClientMockTest {
 			}
 			
 		};
+		when(request.addHeader("Content-Type", "application/json"))
 		when(request.getHeaders("Content-Type")).thenReturn(contentTypeHeaders);
 		Assert.assertNotNull(request.);
 		when(asyncHttpClient.execute(any(HttpUriRequest.class), any(FutureCallback.class))).thenReturn(future, null);
