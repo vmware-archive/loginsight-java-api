@@ -8,10 +8,13 @@
  */
 package com.vmware.loginsightapi;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
@@ -40,21 +43,28 @@ public class TestLogInsightClient {
 
 	private LogInsightClient client;
 	private final static Logger logger = LoggerFactory.getLogger(TestLogInsightClient.class);
-	String ip;
 	String user;
 	String password;
 
 	@Before
 	public void setUp() {
-		ip = System.getenv("ip");
 		user = System.getenv("user");
 		password = System.getenv("password");
-		if (null == ip || null == user || null == password) {
-			throw new IllegalStateException("Missing environment variables");
+		Properties connectionConfig = new Properties();
+		try {
+			connectionConfig.load(getClass().getResourceAsStream("/config.properties"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 		
-	
-		LogInsightConnectionConfig connectionConfig = new LogInsightConnectionConfig(ip);
+		if (StringUtils.isEmpty(user)) {
+			user = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_USER);
+		}
+		
+		if (StringUtils.isEmpty(password)) {
+			password = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PASSWORD);
+		}
+		
 		LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy = new AsyncLogInsightConnectionStrategy();
 		client = new LogInsightClient(connectionStrategy, connectionConfig);
 		client.connect(user, password);
@@ -197,9 +207,6 @@ public class TestLogInsightClient {
 
 	@After
 	public void tearDown() {
-		if (null == ip || null == user || null == password) {
-			throw new IllegalStateException("Missing environment variables");
-		}
 		client.stopAsyncHttpClient();
 	}
 

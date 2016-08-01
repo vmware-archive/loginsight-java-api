@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -91,7 +92,11 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	public String ingestionApiUrl() {
-		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT) + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
+		int logInsightIngestionPort = 0;
+		if (StringUtils.isEmpty(connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT))) {
+			logInsightIngestionPort = LogInsightConnectionConfig.DEFAULT_INGESTION_PORT;
+		}
+		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + logInsightIngestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
 	}
 
 	public static List<Header> getDefaultHeaders() {
