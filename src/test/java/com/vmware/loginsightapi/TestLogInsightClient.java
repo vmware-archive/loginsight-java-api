@@ -13,25 +13,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vmware.loginsightapi.AggregateQueryBuilder;
-import com.vmware.loginsightapi.FieldConstraint;
-import com.vmware.loginsightapi.LogInsightApiError;
-import com.vmware.loginsightapi.LogInsightApiException;
-import com.vmware.loginsightapi.LogInsightClient;
-import com.vmware.loginsightapi.MessageQueryBuilder;
-import com.vmware.loginsightapi.RequestBuilders;
 import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
