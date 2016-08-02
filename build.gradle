@@ -7,10 +7,9 @@
  * user guide available at https://docs.gradle.org/2.13/userguide/tutorial_java_projects.html
  */
 
-apply plugin: 'groovy'
 apply plugin: 'java'
-sourceSets.main.java.srcDirs = []
-sourceSets.main.groovy.srcDirs += ["src/main/java"]
+sourceSets.main.java.srcDirs = ["src/main/java"]
+//sourceSets.main.groovy.srcDirs += ["src/main/java"]
 
 // In this section you declare where to find the dependencies of your project
 repositories {
