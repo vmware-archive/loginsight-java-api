@@ -286,7 +286,6 @@ public class LogInsightClient implements AutoCloseable {
 		HttpGet request = null;
 		try {
 			request = getHttpRequest(apiUrl, true);
-			System.out.println("Querying " + aggregateQueryUrl() + apiUrl);
 			Future<HttpResponse> future = asyncHttpClient.execute(request, null);
 			HttpResponse httpResponse = future.get();
 			logger.debug("Aggregate Response: " + httpResponse.getStatusLine());
@@ -411,7 +410,7 @@ public class LogInsightClient implements AutoCloseable {
 	}
 	
 	/**
-	 * Returns a properly created instance of HttPGet based on the provided URL
+	 * Returns a properly created instance of HttpGet based on the provided URL
 	 * @param apiUrl
 	 * @param isAggregateQuery Is it is normal query or aggregate query
 	 * @return
