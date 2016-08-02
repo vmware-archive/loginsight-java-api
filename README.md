@@ -12,6 +12,7 @@ LogInsight Java API provides a fluent API to interact with VMware vRealize LogIn
 * ingesion
  
 You can access the **javadoc** for this libary [here](https://vmware.github.io/loginsight-java-api/javadoc/)
+Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
 
 ## Try it out
 
