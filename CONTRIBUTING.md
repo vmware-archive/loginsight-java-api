@@ -6,7 +6,8 @@ Thank you for your interest in loginsight-java-api. We look forward for your sup
 * Download and use it. "Star" the repository if you like the project
 * Test and Report bugs if you find any
 * Look at the pending issues https://github.com/vmware/loginsight-java-api/issues and contribute with code and documentation
-
+* Please join us at [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
+ 
 ## Getting Started
 
 * Download and install Java8 JDK
