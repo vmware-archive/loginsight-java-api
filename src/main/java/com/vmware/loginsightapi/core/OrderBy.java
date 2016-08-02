@@ -8,7 +8,7 @@
  */
 package com.vmware.loginsightapi.core;
 
-import com.vmware.loginsightapi.AggregateQueryBuilder;
+import com.vmware.loginsightapi.AggregateQueryBuilder.AggregationFunction;
 
 /**
  * Class representing the OrderBy clause in the aggregate query.
@@ -18,7 +18,7 @@ public class OrderBy {
 	/**
 	 * Enum for OrderByFunction
 	 * 
-	 * @see AggregateQueryBuilder.AggregationFunction
+	 * @see AggregationFunction
 	 */
 	public enum OrderByFunction {
 		/**

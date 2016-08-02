@@ -68,6 +68,15 @@ public class IngestionRequest {
 	}
 	
 	/**
+	 * Add a list of messages to existing messages
+	 * 
+	 * @param messages List of Message objects
+	 */
+	public void addMessages(List<Message> messages) {
+		messages.addAll(messages);
+	}
+	
+	/**
 	 * Get the count messages in IngestionRequest
 	 * 
 	 * @return count of messages

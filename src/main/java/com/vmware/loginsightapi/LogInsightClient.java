@@ -82,6 +82,18 @@ public class LogInsightClient implements AutoCloseable {
 	private final static Logger logger = LoggerFactory.getLogger(LogInsightClient.class);
 
 	/**
+	 * Default LogInsightClient constructor
+	 * 
+	 * @param connectionConfig
+	 *            Properties configuration
+	 */
+	public LogInsightClient(Properties connectionConfig) {
+		this.connectionStrategy = new AsyncLogInsightConnectionStrategy();
+		this.connectionConfig = connectionConfig;
+		asyncHttpClient = connectionStrategy.getHttpClient();
+	}
+	
+	/**
 	 * Builds LogInsightClient object with connection strategy and configuration
 	 * properties
 	 * 

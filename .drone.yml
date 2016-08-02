@@ -11,6 +11,5 @@ build:
       COMMIT: $$COMMIT
       GRADLE_USER_HOME: ~/.gradle
     commands:
-      - env
-      - ./gradlew build
+      - ./gradlew build javadoc -x test
 
