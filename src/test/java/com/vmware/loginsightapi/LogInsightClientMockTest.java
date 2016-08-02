@@ -431,7 +431,7 @@ public class LogInsightClientMockTest {
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_RESPONSE_FOR_INGESTION, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);			
-			IngestionResponse messages = client.injest(request);
+			IngestionResponse messages = client.ingest(request);
 			Assert.assertTrue("Invalid status in ingestion response", "ok".equals(messages.getStatus()));
 		} catch (Exception e) {
 			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));

@@ -151,7 +151,7 @@ public class TestLogInsightClient {
 		msg1.addField("vclap_test_id", "11111");
 		IngestionRequest request = new IngestionRequest();
 		request.addMessage(msg1);
-		IngestionResponse response = client.injest(request);
+		IngestionResponse response = client.ingest(request);
 		System.out.println("Resonse " + response.getMessage() + response.getStatus() + response.getIngested());
 	}
 

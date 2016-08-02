@@ -445,7 +445,7 @@ public class LogInsightClient implements AutoCloseable {
 	 * @see IngestionRequest
 	 * @see IngestionResponse
 	 */
-	public IngestionResponse injest(IngestionRequest messages) throws LogInsightApiException {
+	public IngestionResponse ingest(IngestionRequest messages) throws LogInsightApiException {
 
 		// IngestionResponse response = null;
 		HttpPost httpPost = null;
