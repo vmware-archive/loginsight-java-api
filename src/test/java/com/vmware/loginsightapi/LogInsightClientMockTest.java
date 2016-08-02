@@ -31,6 +31,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
@@ -46,6 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.loginsightapi.core.AggregateResponse;
+import com.vmware.loginsightapi.core.IngestionRequest;
+import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 import com.vmware.loginsightapi.util.Callback;
 
@@ -69,6 +73,8 @@ public class LogInsightClientMockTest {
 	
 	private final static String SERVER_EXPECTED_AGGREGATE_QUERY_RESPONSE = "{\"complete\":true,\"duration\":52,"
 			+ "\"bins\":[{\"minTimestamp\":1432135885000,\"maxTimestamp\":1432135889999,\"value\":208515}]}";
+	
+	private final static String SERVER_EXPECTED_RESPONSE_FOR_INGESTION = "{\"status\":\"ok\",\"message\":\"messages ingested\",\"ingested\":1}";
 	@Mock
 	private LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy;
 	@Mock
@@ -471,7 +477,54 @@ public class LogInsightClientMockTest {
 			e1.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void testIngestion() {
+		Message msg1 = new Message("Testing the ingestion");
+		msg1.addField("vclap_test_id", "11111");
+		IngestionRequest request = new IngestionRequest();
+		request.addMessage(msg1);
+		
+		HttpPost postRequest = client.getIngestionHttpRequest(request);
+		try {
+			URI expectedURI = new URI("https://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":"
+					+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT)
+					+ "/api/v1/messages/ingest/"
+					+ LogInsightClient.DEFAULT_INGESTION_AGENT_ID);
+			Assert.assertTrue("Request URI is malformed", postRequest.getURI().equals(expectedURI));
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+		Header[] headers = postRequest.getAllHeaders();
+		for (int i = 0; i < headers.length; i++) {
+			String headerName = headers[i].getName();
+			String headerValue = headers[i].getValue();
+			if (headerName.equals("Content-Type")) {
+				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
+			}
+			
+			if (headerName.equals("Accept")) {
+				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
+			}
+		}
 
-
-
+		HttpResponse response = mock(HttpResponse.class);
+		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
+		when(asyncHttpClient.execute(any(HttpUriRequest.class), any(FutureCallback.class))).thenReturn(future, null);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		StatusLine statusLine = mock(StatusLine.class);
+		when(response.getStatusLine()).thenReturn(statusLine);
+		when(statusLine.getStatusCode()).thenReturn(200);
+		
+		try {
+			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_RESPONSE_FOR_INGESTION, "UTF-8");
+			when(httpEntity.getContent()).thenReturn(inputStream);			
+			IngestionResponse messages = client.injest(request);
+			Assert.assertTrue("Invalid status in ingestion response", "ok".equals(messages.getStatus()));
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(false);
+		}
+	}
 }

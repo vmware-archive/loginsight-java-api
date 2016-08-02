@@ -93,9 +93,9 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	public String ingestionApiUrl() {
-		int logInsightIngestionPort = 0;
-		if (StringUtils.isEmpty(connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT))) {
-			logInsightIngestionPort = LogInsightConnectionConfig.DEFAULT_INGESTION_PORT;
+		String logInsightIngestionPort = ""+ LogInsightConnectionConfig.DEFAULT_INGESTION_PORT;
+		if (StringUtils.isNotEmpty(connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT))) {
+			logInsightIngestionPort = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT);
 		}
 		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":" + logInsightIngestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
 	}
@@ -354,11 +354,7 @@ public class LogInsightClient implements AutoCloseable {
 		// IngestionResponse response = null;
 		HttpPost httpPost = null;
 		try {
-			httpPost = new HttpPost(ingestionApiUrl());
-
-			httpPost.setEntity(new StringEntity(messages.toJson(), ContentType.APPLICATION_JSON));
-			httpPost.addHeader("Content-Type", "application/json");
-			httpPost.addHeader("Accept", "application/json");
+			httpPost = getIngestionHttpRequest(messages);
 			logger.info("Sending : " + messages.toJson());
 			Future<HttpResponse> future = asyncHttpClient.execute(httpPost, null);
 			HttpResponse httpResponse = future.get();
@@ -410,7 +406,7 @@ public class LogInsightClient implements AutoCloseable {
 	}
 	
 	/**
-	 * Returns a properly created instance of HttpGet based on the provided URL
+	 * Returns a properly created instance of {@code HttpGet} based on the provided URL
 	 * @param apiUrl
 	 * @param isAggregateQuery Is it is normal query or aggregate query
 	 * @return
@@ -429,6 +425,25 @@ public class LogInsightClient implements AutoCloseable {
 		addHeaders(request, getDefaultHeaders());
 		addHeaders(request, getSessionHeaders());
 		return request;
+	}
+	
+	/**
+	 * Returns a properly formed {@code HttpPost} for the given {@code IngestionRequest}
+	 * @param ingestionRequest
+	 * @return
+	 */
+	public HttpPost getIngestionHttpRequest(IngestionRequest ingestionRequest) {
+		HttpPost httpPost = null;
+		try {
+			httpPost = new HttpPost(ingestionApiUrl());
+
+			httpPost.setEntity(new StringEntity(ingestionRequest.toJson(), ContentType.APPLICATION_JSON));
+			httpPost.addHeader("Content-Type", "application/json");
+			httpPost.addHeader("Accept", "application/json");
+		} catch (IllegalArgumentException e) {
+			throw e;
+		}
+		return httpPost;
 	}
 
 }
