@@ -13,69 +13,244 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.vmware.loginsightapi.core.FieldConstraint;
+
+/**
+ * This class helps in building the field constraints required loginsight
+ * queries
+ * 
+ * @see FieldConstraint
+ */
+
 public class ConstraintBuilder {
-	
+
 	List<FieldConstraint> constraints;
+
+	/**
+	 * Default Constructor to initialize the constraints.
+	 */
 	public ConstraintBuilder() {
 		constraints = new ArrayList<FieldConstraint>();
 	}
-	
+
+	/**
+	 * Build a field constraint with <b>equals</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field EQ value} or {@code field == value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder eq(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.EQ, value));
+		this.constraints.add(FieldConstraint.eq(field, value));
 		return this;
 	}
-	
+
+	/**
+	 * Build a field constraint with <b>not equals</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field NE value} or {@code field != value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder ne(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.NE, value));
+		this.constraints.add(FieldConstraint.ne(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>less than</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field LT value} or {@code field < value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder lt(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.LT, value));
+		this.constraints.add(FieldConstraint.lt(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>less than or equals to</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field LE value} or {@code field <= value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder le(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.LE, value));
+		this.constraints.add(FieldConstraint.le(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>greater than</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field GT value} or {@code field > value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder gt(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.GT, value));
+		this.constraints.add(FieldConstraint.gt(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>greater than or equals to</b> operator <br>
+	 * This constraint is valid only for numeric values <br>
+	 * <br>
+	 * <b>{@code field GE value} or {@code field >= value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports numeric only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder ge(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.GE, value));
+		this.constraints.add(FieldConstraint.ge(field, value));
 		return this;
 	}
-	
+
+	/**
+	 * Build a field constraint with <b>contains</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field CONTAINS value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder contains(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.CONTAINS, value));
+		this.constraints.add(FieldConstraint.contains(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>not contains</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field NOT_CONTAINS value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder notContains(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.NOT_CONTAINS, value));
+		this.constraints.add(FieldConstraint.notContains(field, value));
 		return this;
 	}
+
+	/**
+	 * Build a field constraint with <b>has</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field HAS value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder has(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.HAS, value));
+		this.constraints.add(FieldConstraint.has(field, value));
 		return this;
 	}
-	
+
+	/**
+	 * Build a field constraint with <b>not has</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field NOT_HAS value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
 	public ConstraintBuilder notHas(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.NOT_HAS, value));
+		this.constraints.add(FieldConstraint.notHas(field, value));
 		return this;
 	}
-	public ConstraintBuilder matches(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.MATCHES_REGEX, value));
+
+	/**
+	 * Build a field constraint with <b>matches regex</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field MATCHES_REGEX value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
+	public ConstraintBuilder matchesRegex(String field, String value) {
+		this.constraints.add(FieldConstraint.matchesRegex(field, value));
 		return this;
 	}
-	public ConstraintBuilder notMatches(String field, String value) {
-		this.constraints.add(new FieldConstraint(field, FieldConstraint.Operator.NOT_MATCHES_REGEX, value));
+
+	/**
+	 * Build a field constraint with <b>not matches regex</b> operator <br>
+	 * This constraint is valid only for string values <br>
+	 * <br>
+	 * <b>{@code field NOT_MATCHES_REGEX value} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @param value
+	 *            field's value - supports string type only
+	 * @return ConstraintBuilder instance (this)
+	 */
+	public ConstraintBuilder notMatchesRegex(String field, String value) {
+		this.constraints.add(FieldConstraint.notMatchesRegex(field, value));
 		return this;
 	}
-	
+
+	/**
+	 * Returns the list of constructs as an arrayList.
+	 * 
+	 * @return the list of field constraints
+	 */
 	public List<FieldConstraint> build() {
 		return constraints;
 	}
-	
+
+	/**
+	 * Returns the segment of the url path based on the provided constraints.
+	 * 
+	 * @return segment of the url path (string)
+	 */
 	public String buildPathSegment() {
 		String expression = constraints.stream().map(constraint -> {
 			try {
@@ -86,6 +261,5 @@ public class ConstraintBuilder {
 		}).collect(Collectors.joining("/"));
 		return expression;
 	}
-	
 
 }

@@ -8,16 +8,38 @@
  */
 package com.vmware.loginsightapi;
 
+/**
+ * Abstract class with static methods to return the appropriate builder
+ * instances.
+ */
 public abstract class RequestBuilders {
-	
+
+	/**
+	 * Returns a new instance of MessageQueryBuilder
+	 * 
+	 * @return Object of MessageQueryBuilder
+	 * @see MessageQueryBuilder
+	 */
 	public static MessageQueryBuilder messageQuery() {
 		return new MessageQueryBuilder();
 	}
-	
+
+	/**
+	 * Returns a new instance of AggregateQueryBuilder
+	 * 
+	 * @return Object of AggregateQueryBuilder
+	 * @see AggregateQueryBuilder
+	 */
 	public static AggregateQueryBuilder aggreateQuery() {
 		return new AggregateQueryBuilder();
 	}
-	
+
+	/**
+	 * Returns a new instance of ConstraintBuilder
+	 * 
+	 * @return Object of ConstraintBuilder
+	 * @see ConstraintBuilder
+	 */
 	public static ConstraintBuilder constraint() {
 		return new ConstraintBuilder();
 	}

@@ -9,23 +9,22 @@
 
 package com.vmware.loginsightapi;
 
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.vmware.loginsightapi.AggregateQueryBuilder;
-import com.vmware.loginsightapi.FieldConstraint;
-import com.vmware.loginsightapi.MessageQueryBuilder;
-import com.vmware.loginsightapi.RequestBuilders;
+import com.vmware.loginsightapi.core.FieldConstraint;
 
 /**
- * @author gopalk
  *
  */
+@Ignore
 public class TestRequestBuilders {
 
 	/**

@@ -8,32 +8,64 @@
  */
 package com.vmware.loginsightapi.core;
 
+/**
+ * Abstract Class to hold the GroupBy information required in the query
+ *
+ */
 public abstract class GroupBy {
-	
+
 	protected final String groupByField;
 	protected final String bins;
 	protected final int binWidth;
-	
+
+	/**
+	 * Constructor to initialize the groupBy object with field name Defaults are
+	 * set to other parameters.
+	 * 
+	 * @param groupByField name of the groupBy Field
+	 */
 	public GroupBy(String groupByField) {
 		this.groupByField = groupByField;
 		this.binWidth = 0;
 		this.bins = null;
 	}
-	
+
+	/**
+	 * Constructor to initialize the groupBy object with field name, bins and binWidth
+	 * 
+	 * @param groupByField name of the groupBy field
+	 * @param bins         dynamic bins with comma separated bin widths (10,20,50)
+	 * @param binWidth     fixed bin width
+	 */
 	public GroupBy(String groupByField, String bins, int binWidth) {
 		this.groupByField = groupByField;
 		this.bins = bins;
 		this.binWidth = binWidth;
 	}
-
+	
+	/**
+	 * Name of the field on which grouping need to be done.
+	 * 
+	 * @return name of the groupBy field
+	 */
 	public String getGroupByField() {
 		return groupByField;
 	}
 
+	/**
+	 * Getter the dynamic bin widths
+	 * 
+	 * @return a comma separated string with bin widths
+	 */
 	public String getBins() {
 		return bins;
 	}
 
+	/**
+	 * Getter for fixed bin width
+	 * 
+	 * @return width of the bin
+	 */
 	public int getBinWidth() {
 		return binWidth;
 	}

@@ -8,6 +8,12 @@
  */
 package com.vmware.loginsightapi.core;
 
+/**
+ * A class to represent the GroupBy with fixed bin width This class extends from
+ * GroupBy
+ *
+ * @see GroupBy
+ */
 public class GroupByFixedBinWidth extends GroupBy {
 
 	public GroupByFixedBinWidth(String groupByField, int binWidth) {

@@ -10,9 +10,9 @@ package com.vmware.loginsightapi;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doAnswer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,11 +47,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.loginsightapi.core.AggregateResponse;
+import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightApiError;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
-import com.vmware.loginsightapi.util.Callback;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogInsightClientMockTest {
@@ -310,97 +311,7 @@ public class LogInsightClientMockTest {
 			e1.printStackTrace();
 		}
 	}
-	
-	@Test
-	public void testMessageQueryAsync() {
-		final CountDownLatch latch = new CountDownLatch(1);
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
-				.setConstraints(constraints);
 		
-		HttpGet getRequest = client.getHttpRequest(mqb.toUrlString(), false);
-		try {
-			Assert.assertTrue("Request URI is malformed", getRequest.getURI().equals( new URI("https://" + connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":443/api/v1/events/vclap_caseid/EQ+1423244/timestamp/GT+0")));
-		} catch (Exception e) {
-			Assert.assertTrue(false);
-		}
-		Header[] headers = getRequest.getAllHeaders();
-		for (int i = 0; i < headers.length; i++) {
-			String headerName = headers[i].getName();
-			String headerValue = headers[i].getValue();
-			if (headerName.equals("Content-Type")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-			
-			if (headerName.equals("Accept")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-			
-			if (headerName.equals("x-li-timestamp")) {
-				Assert.assertNotNull("x-li-timestamp header is not set", headerValue);
-			}
-			
-			if (headerName.equals("X-li-session-id")) {
-				Assert.assertNotNull("X-li-session-id header is not set", headerValue);
-			}
-		}
-		
-		HttpResponse response = mock(HttpResponse.class);
-		HttpEntity httpEntity = mock(HttpEntity.class);
-		when(response.getEntity()).thenReturn(httpEntity);
-		StatusLine statusLine = mock(StatusLine.class);
-		when(response.getStatusLine()).thenReturn(statusLine);
-		when(statusLine.getStatusCode()).thenReturn(200);
-
-		doAnswer(new Answer<Future<HttpResponse>>() {
-			  @Override
-		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
-		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
-		          responseCallback.completed(response);
-		          return null;
-		      }})
-		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
-		
-		try {
-			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_QUERY_RESPONSE, "UTF-8");
-			when(httpEntity.getContent()).thenReturn(inputStream);
-
-			client.messageQueryAsync(mqb.toUrlString(), new Callback<MessageQueryResponse>() {
-				@Override
-				public void completed(MessageQueryResponse response) {
-					logger.info("Call completed");
-					logger.info("Returned " + response.getEvents().size() + " messages");
-					Assert.assertTrue("Invalid number of messages", response.getEvents().size() <= 100);
-					latch.countDown();
-				}
-
-				@Override
-				public void failed(LogInsightApiException e) {
-					System.out.println("Call failed" + ExceptionUtils.getStackTrace(e));
-					latch.countDown();
-				}
-
-				@Override
-				public void cancelled() {
-					System.out.println("Call cancelled");
-					latch.countDown();
-				}
-
-			});			
-		} catch (Exception e) {
-			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
-			Assert.assertTrue(false);
-		}
-		
-		try {
-			latch.await();
-		} catch (InterruptedException e1) {
-			logger.info("Test Finished completely!!!");
-			e1.printStackTrace();
-		}
-	}
-	
 	@Test
 	public void testMessageQueryLambda() {
 		final CountDownLatch latch = new CountDownLatch(1);

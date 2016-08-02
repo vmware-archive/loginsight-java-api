@@ -8,6 +8,12 @@
  */
 package com.vmware.loginsightapi.util;
 
+/**
+ * Functional Interface to handle Async callbacks
+ * 
+ * @param <T> Response object
+ * @param <U> Error object.
+ */
 @FunctionalInterface
 public interface AsyncCallback<T, U> {
 

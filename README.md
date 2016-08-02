@@ -1,4 +1,7 @@
 
+[![Gitter](https://badges.gitter.im/vmware/loginsight-java-api.svg)](https://gitter.im/vmware/loginsight-java-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![javadoc](https://img.shields.io/badge/view-javadoc-lightgrey.svg)](https://vmware.github.io/loginsight-java-api/javadoc/)
+[![Build Status](https://ci.vmware.run/api/badges/vmware/loginsight-java-api/status.svg)](https://ci.vmware.run/vmware/loginsight-java-api)
 
 # loginsight-java-api
 
@@ -11,6 +14,10 @@ LogInsight Java API provides a fluent API to interact with VMware vRealize LogIn
 * aggregate queries
 * ingesion
  
+You can access the **javadoc** for this libary [here](https://vmware.github.io/loginsight-java-api/javadoc/)
+
+Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
+
 ## Try it out
 
 ### Prerequisites
@@ -65,11 +72,11 @@ client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsigh
 		// Handle error
 	} else {
 		// Handle response
-		latch.countDown();
 	}
+	latch.countDown(); //release the latch
 });
 try {
-	latch.await();
+	latch.await(); // wait for completion of the callback
 } catch (InterruptedException e1) {
 	e1.printStackTrace();
 }
@@ -98,11 +105,11 @@ client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsight
 		// Handle Response
 	} else {
 		// Handle Error
-		latch.countDown();
  	}
+ 	latch.countDown(); // release the latch
 });
 try {
-	latch.await();
+	latch.await();  // wait for the completion of the callback
 } catch (InterruptedException e1) {
 	e1.printStackTrace();
 }

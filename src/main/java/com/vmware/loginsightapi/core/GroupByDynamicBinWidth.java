@@ -8,6 +8,12 @@
  */
 package com.vmware.loginsightapi.core;
 
+/**
+ * A class to represent the GroupBy with dynamic bin widths. This class extends
+ * from GroupBy
+ *
+ * @see GroupBy
+ */
 public class GroupByDynamicBinWidth extends GroupBy {
 	public GroupByDynamicBinWidth(String groupByField, String bins) {
 		super(groupByField, bins, 0);

@@ -8,32 +8,47 @@
  */
 package com.vmware.loginsightapi;
 
+/**
+ * Generic Parse exception in LogInsight API
+ *
+ */
 public class ParseException extends LogInsightApiException {
 
 	private static final long serialVersionUID = 5003833322724218523L;
 
+	/**
+	 * Default Constructor
+	 */
 	public ParseException() {
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Constructs a ParseException object with supplied message
+	 * @param message error message
+	 * @see   LogInsightApiException#LogInsightApiException(String)
+	 */
 	public ParseException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Constructs a ParseException object with supplied throwable
+	 * @param cause Throwable instance
+	 * @see   LogInsightApiException#LogInsightApiException(Throwable)
+	 */
 	public ParseException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Constructs a ParseException object with supplied message and throwable
+	 * 
+	 * @param message error message
+	 * @param cause   Throwable instance
+	 * @see   LogInsightApiException#LogInsightApiException(String, Throwable)
+	 */
 	public ParseException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
-	}
-
-	public ParseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-		// TODO Auto-generated constructor stub
 	}
 
 }

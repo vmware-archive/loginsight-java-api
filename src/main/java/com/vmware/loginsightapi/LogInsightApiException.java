@@ -8,28 +8,43 @@
  */
 package com.vmware.loginsightapi;
 
+/**
+ * Generic API Exception for LogInsight API
+ */
 public class LogInsightApiException extends RuntimeException {
 
 	private static final long serialVersionUID = -4785222347198327783L;
 
+	/**
+	 * Constructs an empty LogInsightApiException object
+	 */
 	public LogInsightApiException() {
 	}
 
+	/**
+	 * Constructs LogInsightApiException with provided message
+	 * @param message error message
+	 */
 	public LogInsightApiException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructs LogInsightApiException with provided Throwable
+	 * @param cause Throwable instance
+	 */
 	public LogInsightApiException(Throwable cause) {
 		super(cause);
 	}
-
+	
+	/**
+	 * Constructs LogInsightApiException with provided message and Throwable
+	 * 
+	 * @param message Error message
+	 * @param cause   Throwable instance
+	 */
 	public LogInsightApiException(String message, Throwable cause) {
 		super(message, cause);
-	}
-
-	public LogInsightApiException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }

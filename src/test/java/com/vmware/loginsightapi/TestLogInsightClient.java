@@ -14,22 +14,24 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vmware.loginsightapi.core.AggregateResponse;
+import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightApiError;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
-import com.vmware.loginsightapi.util.Callback;
 
+@Ignore
 public class TestLogInsightClient {
 
 	private LogInsightClient client;
@@ -103,49 +105,6 @@ public class TestLogInsightClient {
 				logger.info("duration=" + duration);
 				latch.countDown();
 			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			logger.info("Test Finished completely!!!");
-			e1.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testMessageQueryAsync() {
-		long startTime = System.nanoTime();
-		logger.info("Starting Call completed");
-		final CountDownLatch latch = new CountDownLatch(1);
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
-				.setConstraints(constraints);
-		client.messageQueryAsync(mqb.toUrlString(), new Callback<MessageQueryResponse>() {
-
-			@Override
-			public void completed(MessageQueryResponse response) {
-				logger.info("Call completed");
-				logger.info("Returned " + response.getEvents().size() + " messages");
-				Assert.assertTrue("Invalid number of messages", response.getEvents().size() <= 100);
-				long duration = System.nanoTime() - startTime;
-				logger.info("duration=" + duration);
-				latch.countDown();
-			}
-
-			@Override
-			public void failed(LogInsightApiException e) {
-				System.out.println("Call failed" + ExceptionUtils.getStackTrace(e));
-				latch.countDown();
-			}
-
-			@Override
-			public void cancelled() {
-				System.out.println("Call cancelled");
-				latch.countDown();
-			}
-
 		});
 		try {
 			latch.await();

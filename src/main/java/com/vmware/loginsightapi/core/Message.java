@@ -13,81 +13,166 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
+/**
+ * Message class holding the each loginsight message/event
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Message {
 	private String text;
 	private Long timestamp;
 	private List<Field> fields;
-	
-	public Message () {
-//		timestamp = DateTime.now().getMillis();
+
+	/**
+	 * Default constructor
+	 */
+	public Message() {
+		// timestamp = DateTime.now().getMillis();
 		this.fields = new ArrayList<Field>();
 	}
-	
-	public Message (String text) {
+
+	/**
+	 * Creates a message from text. Initialized fields to empty list.
+	 * 
+	 * @param text
+	 *            message text
+	 */
+	public Message(String text) {
 		this.text = text;
 		this.fields = new ArrayList<Field>();
 	}
-	
-	public Message (String text, Long timestamp) {
+
+	/**
+	 * Creates a message from text and timestamp fields. Initializes fields to
+	 * empty list.
+	 * 
+	 * @param text
+	 *            message text
+	 * @param timestamp
+	 *            message timestamp
+	 */
+	public Message(String text, Long timestamp) {
 		this.text = text;
 		this.timestamp = timestamp;
 		this.fields = new ArrayList<Field>();
 	}
-	
-	public Message (String text, Long timestamp, List<Field> fields) {
+
+	/**
+	 * Creates a message from text, timestamp and supplied fields.
+	 * 
+	 * @param text
+	 *            message text
+	 * @param timestamp
+	 *            message timestamp
+	 * @param fields
+	 *            List of fields for message
+	 */
+	public Message(String text, Long timestamp, List<Field> fields) {
 		this.text = text;
 		this.timestamp = timestamp;
 		this.fields = fields;
 	}
+
 	/**
+	 * Getter for message text
+	 * 
 	 * @return the text
 	 */
 	public String getText() {
 		return text;
 	}
+
 	/**
-	 * @param text the text to set
+	 * Setter for message text
+	 * 
+	 * @param text
+	 *            the text to set
 	 */
 	public void setText(String text) {
 		this.text = text;
 	}
+
 	/**
+	 * Getter for message timestamp
+	 * 
 	 * @return the timeStamp
 	 */
 	public Long getTimestamp() {
 		return timestamp;
 	}
+
 	/**
-	 * @param timeStamp the timeStamp to set
+	 * Setter for message timestamp
+	 * 
+	 * @param timeStamp
+	 *            the timeStamp to set
 	 */
 	public void setTimestamp(Long timeStamp) {
 		this.timestamp = timeStamp;
 	}
+
 	/**
+	 * Getter for fields in message
+	 * 
 	 * @return the fields
 	 */
 	public List<Field> getFields() {
 		return fields;
 	}
+
 	/**
-	 * @param fields the fields to set
+	 * Setter for fields in message
+	 * 
+	 * @param fields
+	 *            the fields to set
 	 */
 	public void setFields(List<Field> fields) {
 		this.fields = fields;
 	}
-	
+
+	/**
+	 * Add a field to existing fields in the message
+	 * 
+	 * @param field
+	 *            Field Object
+	 */
 	public void addField(Field field) {
 		this.fields.add(field);
 	}
-	
+
+	/**
+	 * Add a field by name and content to already registered fields. Please note
+	 * that this does not check for the duplicate field names.
+	 * 
+	 * @param name
+	 *            name of the field
+	 * @param content
+	 *            content of the field
+	 */
 	public void addField(String name, String content) {
 		this.fields.add(new Field(name, content));
 	}
+
+	/**
+	 * Add a field by name, startPosition and length to already registered
+	 * fields. Please note that this does not check for the duplicate field
+	 * names.
+	 * 
+	 * @param name          name of the new field
+	 * @param startPosition startPosition of the new field
+	 * @param length        length of the new field.
+	 */
 	public void addField(String name, String startPosition, String length) {
 		this.fields.add(new Field(name, startPosition, length));
 	}
+
+	/**
+	 * Add a field by all individual parameters
+	 * 
+	 * @param name           name of the field
+	 * @param content        content of the field
+	 * @param startPosition  startPosition of the field content in the message
+	 * @param length         length of the field content in the message.
+	 */
 	public void addField(String name, String content, String startPosition, String length) {
 		this.fields.add(new Field(name, content, startPosition, length));
 	}

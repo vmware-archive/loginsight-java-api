@@ -16,30 +16,75 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.loginsightapi.ParseException;
 
+/**
+ * Class representing the response structure of an ingestion request.
+ */
 public class IngestionResponse {
 	
 	private String status;
 	private String message;
 	private int ingested;
+	
+	/**
+	 * Returns the status of the ingestion request.
+	 * 
+	 * @return status of ingestion request
+	 */
 	public String getStatus() {
 		return status;
 	}
+	
+	/**
+	 * Sets the status of the ingestion request
+	 * 
+	 * @param status status of the ingestion request
+	 */
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	/**
+	 * Get the ingestion response message
+	 * 
+	 * @return message in the ingestion response
+	 */
 	public String getMessage() {
 		return message;
 	}
+	
+	/**
+	 * Setter for message in Ingestion Response.
+	 * 
+	 * @param message message to be supplied for ingestion response
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	
+	/**
+	 * Get the number of ingested messages
+	 * 
+	 * @return number of ingested messages
+	 */
 	public int getIngested() {
 		return ingested;
 	}
+	
+	/**
+	 * Setter for number of ingested messages
+	 * 
+	 * @param ingested number of ingested messages
+	 */
 	public void setIngested(int ingested) {
 		this.ingested = ingested;
 	}
 	
+	/**
+	 * Static method for constructing the IngestionResponse from JSON string
+	 * 
+	 * @param json json string for building ingestion response
+	 * @return IngestionResponse object
+	 */
 	public static IngestionResponse fromJsonString(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

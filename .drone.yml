@@ -1,0 +1,15 @@
+clone:
+  path: github.com/vmware/loginsight-java-api
+  tags: true
+build:
+  loginsight-java-api:
+    image: java:8-jdk
+    pull: true
+    environment:
+      SHELL: /bin/bash
+      BUILD_NUMBER: $$BUILD_NUMBER
+      COMMIT: $$COMMIT
+      GRADLE_USER_HOME: ~/.gradle
+    commands:
+      - ./gradlew build javadoc -x test
+
