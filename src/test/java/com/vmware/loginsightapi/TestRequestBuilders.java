@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 import com.vmware.loginsightapi.AggregateQueryBuilder;
-import com.vmware.loginsightapi.FieldConstraint;
 import com.vmware.loginsightapi.MessageQueryBuilder;
 import com.vmware.loginsightapi.RequestBuilders;
+import com.vmware.loginsightapi.core.FieldConstraint;
 
 /**
  * @author gopalk

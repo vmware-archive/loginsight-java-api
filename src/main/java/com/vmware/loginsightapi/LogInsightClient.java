@@ -36,6 +36,7 @@ import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.AuthInfo;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightApiError;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 import com.vmware.loginsightapi.util.AsyncCallback;
 

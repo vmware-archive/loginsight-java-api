@@ -6,7 +6,7 @@
  * Some files may be comprised of various open source software components, each of which
  * has its own license that is located in the source code of the respective component.
  */
-package com.vmware.loginsightapi;
+package com.vmware.loginsightapi.core;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

@@ -18,6 +18,8 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 
+import com.vmware.loginsightapi.util.NonValidatingSSLSocketFactory;
+
 /**
  * Defines the connection strategy with CloseableHttpAsyncClient
  */

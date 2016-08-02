@@ -15,20 +15,34 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Class representing the LogInsight Ingestion request object
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class IngestionRequest {
 	private List<Message> messages;
 	
+	/**
+	 * Constructs IngestionRequest object with empty list of messages
+	 */
 	public IngestionRequest () {
 		messages = new ArrayList<Message>();
 		
 	}
 	
+	/**
+	 * Constructs IngestionRequest object with provided list of messages
+	 * 
+	 * @param messages List of Message objects
+	 */
 	public IngestionRequest (List<Message> messages) {
 		this.messages = messages;
 	}
 
 	/**
+	 * Getter for messages
+	 * 
 	 * @return the messages
 	 */
 	public List<Message> getMessages() {
@@ -36,19 +50,37 @@ public class IngestionRequest {
 	}
 
 	/**
+	 * Setter for messages
+	 * 
 	 * @param messages the messages to set
 	 */
 	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
 	
+	/**
+	 * Add a message to existing messages
+	 * 
+	 * @param message Message object
+	 */
 	public void addMessage(Message message) {
 		messages.add(message);
 	}
+	
+	/**
+	 * Get the count messages in IngestionRequest
+	 * 
+	 * @return count of messages
+	 */
 	public int count() {
 		return messages.size();
 	}
 	
+	/**
+	 * Serializes the IngestionRequest to Json string
+	 * 
+	 * @return serialized json string of IngestinoRequest
+	 */
 	public String toJson() {
 		ObjectMapper mapper = new ObjectMapper();
 		String body;

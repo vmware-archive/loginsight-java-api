@@ -8,42 +8,124 @@
  */
 package com.vmware.loginsightapi.core;
 
+/**
+ * Class representing the OrderBy clause in the aggregate query.
+ */
 public class OrderBy {
-	
+
+	/**
+	 * Enum for OrderByFunction
+	 * 
+	 * @see AggregateQueryBuilder.AggregationFunction
+	 */
 	public enum OrderByFunction {
+		/**
+		 * An arbitrary event in the bin
+		 */
 		SAMPLE,
+
+		/**
+		 * Indicates that Order by is not any aggregate function.
+		 */
 		NONE,
+
+		/**
+		 * Count of the events in each bin
+		 */
 		COUNT,
+
+		/**
+		 * Count of unique values in the bin
+		 */
 		UCOUNT,
+
+		/**
+		 * Minimum value in the bin
+		 */
 		MIN,
+
+		/**
+		 * Maximum value in the bin
+		 */
 		MAX,
+
+		/**
+		 * Sum of the values in the bin
+		 */
 		SUM,
+
+		/**
+		 * Standard deviation of the values in the bin
+		 */
 		STDEV,
+
+		/**
+		 * Variance of the values in the bin
+		 */
 		VARIANCE
 	}
-	
+
+	/**
+	 * Enum for Direction in OrderBy clause
+	 *
+	 */
 	public enum Direction {
-		ASC,
+		
+		/**
+		 * Ascending order
+		 */
+		ASC, 
+		
+		/**
+		 * Descending order
+		 */
 		DESC
 	}
+
 	private final String orderByFunction;
 	private final String orderByField;
 	private final Direction orderByDirection;
-	
+
+	/**
+	 * Constructs OrderBy object using orderByFunction, orderByField,
+	 * orderByDirection
+	 * 
+	 * @param orderByFunction
+	 *            order by function
+	 * @param orderByField
+	 *            order by field
+	 * @param orderByDirection
+	 *            order by direction
+	 */
 	public OrderBy(String orderByFunction, String orderByField, Direction orderByDirection) {
 		this.orderByFunction = orderByFunction;
 		this.orderByField = orderByField;
 		this.orderByDirection = orderByDirection;
 	}
-	
+
+	/**
+	 * Getter for orderByFunction
+	 * 
+	 * @return order by function
+	 */
 	public String getOrderByFunction() {
 		return this.orderByFunction;
 	}
-	
+
+	/**
+	 * Getter for order by field
+	 * 
+	 * @return order by field
+	 */
 	public String getOrderByField() {
 		return this.orderByField;
 	}
-	
+
+	/**
+	 * Getter for order by direction
+	 * 
+	 * @return order by direction
+	 */
 	public Direction getOrderByDirection() {
 		return this.orderByDirection;
 	}

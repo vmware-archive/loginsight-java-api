@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.vmware.loginsightapi.core.FieldConstraint;
+
 /**
  * This class helps in building the field constraints required loginsight
  * queries

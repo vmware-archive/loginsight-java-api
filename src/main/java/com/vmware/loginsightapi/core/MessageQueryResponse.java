@@ -10,46 +10,93 @@ package com.vmware.loginsightapi.core;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vmware.loginsightapi.ParseException;
 
+/**
+ * Class representing the response of a message query.
+ *
+ */
 public class MessageQueryResponse {
 
 	private boolean complete;
 	private int duration;
 	private List<Message> events;
-	
+
+	/**
+	 * Default constructor
+	 */
 	public MessageQueryResponse() {
 	}
 
+	/**
+	 * Returns true if the query execution is complete or else returns false.
+	 * 
+	 * @return true or false
+	 */
 	public boolean isComplete() {
 		return complete;
 	}
 
+	/**
+	 * Setter for marking the query execution as complete.
+	 * 
+	 * @param complete
+	 *            true or false
+	 */
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 	}
 
+	/**
+	 * Gets the execution duration of the query
+	 * 
+	 * @return duration in milliseconds
+	 */
 	public int getDuration() {
 		return duration;
 	}
 
+	/**
+	 * Sets the execution duration of the query
+	 * 
+	 * @param duration
+	 *            query duration in milliseconds
+	 */
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 
+	/**
+	 * Get the list of events in the message query response.
+	 * 
+	 * @return list of messages
+	 * @see Message
+	 */
 	public List<Message> getEvents() {
 		return events;
 	}
 
+	/**
+	 * Sets the list of events in the MessageQueryResponse
+	 * 
+	 * @param events
+	 *            list of messages
+	 * @see Message
+	 */
 	public void setEvents(List<Message> events) {
 		this.events = events;
 	}
-	
+
+	/**
+	 * De-serialize and construct the Message Query Resposne object from json
+	 * string
+	 * 
+	 * @param json
+	 *            json string representation of the MessageQueryResponse
+	 * @return message query response object
+	 */
 	public static MessageQueryResponse fromJsonString(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

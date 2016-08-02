@@ -41,6 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 
 @RunWith(MockitoJUnitRunner.class)
