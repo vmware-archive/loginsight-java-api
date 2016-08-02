@@ -263,8 +263,8 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	 * GroupBy bins are configured to fixed bin width. Group by field and bin
 	 * width must be supplied.
 	 * 
-	 * @param groupByField
-	 * @param binWidth
+	 * @param groupByField name of the group by field
+	 * @param binWidth     Width of the bin
 	 * @return AggregateQueryBuilder instance (this)
 	 */
 	public AggregateQueryBuilder groupByFixedBinWidth(String groupByField, int binWidth) {

@@ -37,7 +37,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>equals</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field EQ value} or {@code field == value} </b>
+	 * <b>{@code field EQ value} or {@code field == value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -54,7 +54,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>not equals</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field NE value} or {@code field != value} </b>
+	 * <b>{@code field NE value} or {@code field != value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -71,7 +71,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>less than</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field LT value} or {@code field < value} </b>
+	 * <b>{@code field LT value} or {@code field < value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -88,7 +88,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>less than or equals to</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field LE value} or {@code field <= value} </b>
+	 * <b>{@code field LE value} or {@code field <= value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -105,7 +105,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>greater than</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field GT value} or {@code field > value} </b>
+	 * <b>{@code field GT value} or {@code field > value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -122,7 +122,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>greater than or equals to</b> operator <br>
 	 * This constraint is valid only for numeric values <br>
 	 * <br>
-	 * {@code field GE value} or {@code field >= value} </b>
+	 * <b>{@code field GE value} or {@code field >= value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -139,7 +139,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>contains</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field CONTAINS value} </b>
+	 * <b>{@code field CONTAINS value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -156,7 +156,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>not contains</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field NOT_CONTAINS value} </b>
+	 * <b>{@code field NOT_CONTAINS value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -173,7 +173,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>has</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field HAS value} </b>
+	 * <b>{@code field HAS value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -190,7 +190,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>not has</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field NOT_HAS value} </b>
+	 * <b>{@code field NOT_HAS value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -207,7 +207,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>matches regex</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field MATCHES_REGEX value} </b>
+	 * <b>{@code field MATCHES_REGEX value} </b>
 	 * 
 	 * @param field
 	 *            name of the field
@@ -224,7 +224,7 @@ public class ConstraintBuilder {
 	 * Build a field constraint with <b>not matches regex</b> operator <br>
 	 * This constraint is valid only for string values <br>
 	 * <br>
-	 * {@code field NOT_MATCHES_REGEX value} </b>
+	 * <b>{@code field NOT_MATCHES_REGEX value} </b>
 	 * 
 	 * @param field
 	 *            name of the field

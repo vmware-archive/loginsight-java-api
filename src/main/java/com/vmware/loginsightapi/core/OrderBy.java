@@ -8,6 +8,8 @@
  */
 package com.vmware.loginsightapi.core;
 
+import com.vmware.loginsightapi.AggregateQueryBuilder;
+
 /**
  * Class representing the OrderBy clause in the aggregate query.
  */

@@ -22,7 +22,7 @@ public abstract class GroupBy {
 	 * Constructor to initialize the groupBy object with field name Defaults are
 	 * set to other parameters.
 	 * 
-	 * @param groupByField
+	 * @param groupByField name of the groupBy Field
 	 */
 	public GroupBy(String groupByField) {
 		this.groupByField = groupByField;
