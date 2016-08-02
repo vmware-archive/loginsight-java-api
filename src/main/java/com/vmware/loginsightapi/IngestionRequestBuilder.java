@@ -56,5 +56,13 @@ public class IngestionRequestBuilder {
 		this.ingestionRequest.addMessages(messages);
 		return this;
 	}
-
+	
+	/**
+	 * builds the IngestionRequest
+	 * 
+	 * @return IngestionRequest instance
+	 */
+	public IngestionRequest build()  {
+		return this.ingestionRequest;
+	}
 }
