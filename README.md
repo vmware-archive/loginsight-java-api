@@ -67,11 +67,11 @@ client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsigh
 		// Handle error
 	} else {
 		// Handle response
-		latch.countDown();
 	}
+	latch.countDown(); //release the latch
 });
 try {
-	latch.await();
+	latch.await(); // wait for completion of the callback
 } catch (InterruptedException e1) {
 	e1.printStackTrace();
 }
@@ -100,11 +100,11 @@ client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsight
 		// Handle Response
 	} else {
 		// Handle Error
-		latch.countDown();
  	}
+ 	latch.countDown(); // release the latch
 });
 try {
-	latch.await();
+	latch.await();  // wait for the completion of the callback
 } catch (InterruptedException e1) {
 	e1.printStackTrace();
 }
