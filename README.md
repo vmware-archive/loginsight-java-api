@@ -36,18 +36,23 @@ $ ./gradlew assemble
 
 ### Connecting to LogInsight
 ~~~java
-LogInsightClient client = new LogInsightClient(ip, user, password);
+Properties connectionConfig = new Properties();
+connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME, "https");
+connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST, "host-name");
+connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT, "port-number");
+LogInsightClient client = new LogInsightClient(connectionConfig);
 client.connect();
 ~~~
 
 ### Ingestion of messages to LogInsight
 
 ~~~java
-Message msg1 = new Message("Testing the ingestion");
-msg1.addField("field", "value");
-IngestionRequest request = new IngestionRequest();
-request.addMessage(msg1);
-IngestionResponse response = client.injest(request);
+
+IngestionRequest request = new IngestionRequestBuilder()
+		.withMessage(new Message("message line 1"))
+                .withMessage(new MessageBuilder("message line 2").withField("field1", "content 1").build())
+                .build();
+IngestionResponse response = client.ingest(request);
 ~~~
 
 ### Message Queries
@@ -56,8 +61,8 @@ IngestionResponse response = client.injest(request);
 
 ~~~java
 List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
-MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100).setConstraints(constraints);
-MessageQueryResponse messages = client.messageQuery(mqb.toUrlString());
+String urlString = RequestBuilders.messageQuery().limit(100).setConstraints(constraints).toUrlString();
+MessageQueryResponse messages = client.messageQuery(urlString);
 Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
 ~~~
 
