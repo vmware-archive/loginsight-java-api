@@ -12,4 +12,15 @@ build:
       GRADLE_USER_HOME: ~/.gradle
     commands:
       - ./gradlew build
+notify:
+  gitter:
+    webhook: https://webhooks.gitter.im/e/b08153e167256c8100ff
+publish:
+  coverage:
+    server: https://coverage.vmware.run
+    token: $$GITHUB_AUTOMATION_API_KEY
+    when:
+      repo: vmware/loginsight-java-api
+      branch: master
+      success: true
 
