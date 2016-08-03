@@ -18,6 +18,7 @@ public class TestIngestionRequestBuilder {
 				.withMessage(new MessageBuilder("message line 2").withField("field1", "content 1").build()).build();
 		List<Message> messages = request.getMessages();
 		Assert.assertEquals("Invalid number of message", 2, messages.size());
+		Assert.assertEquals("Invalid message text", "message line 2", messages.get(1).getText());
 	}
 
 }

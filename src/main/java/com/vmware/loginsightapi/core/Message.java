@@ -11,6 +11,9 @@ package com.vmware.loginsightapi.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -111,6 +114,17 @@ public class Message {
 	}
 
 	/**
+	 * Automatically set the current time in mills to Message
+	 * 
+	 * @param timeStamp
+	 *            the timeStamp to set
+	 */
+	public void setTimestamp() {
+		this.timestamp = DateTime.now().getMillis();
+		;
+	}
+
+	/**
 	 * Getter for fields in message
 	 * 
 	 * @return the fields
@@ -157,9 +171,12 @@ public class Message {
 	 * fields. Please note that this does not check for the duplicate field
 	 * names.
 	 * 
-	 * @param name          name of the new field
-	 * @param startPosition startPosition of the new field
-	 * @param length        length of the new field.
+	 * @param name
+	 *            name of the new field
+	 * @param startPosition
+	 *            startPosition of the new field
+	 * @param length
+	 *            length of the new field.
 	 */
 	public void addField(String name, String startPosition, String length) {
 		this.fields.add(new Field(name, startPosition, length));
@@ -168,12 +185,33 @@ public class Message {
 	/**
 	 * Add a field by all individual parameters
 	 * 
-	 * @param name           name of the field
-	 * @param content        content of the field
-	 * @param startPosition  startPosition of the field content in the message
-	 * @param length         length of the field content in the message.
+	 * @param name
+	 *            name of the field
+	 * @param content
+	 *            content of the field
+	 * @param startPosition
+	 *            startPosition of the field content in the message
+	 * @param length
+	 *            length of the field content in the message.
 	 */
 	public void addField(String name, String content, String startPosition, String length) {
 		this.fields.add(new Field(name, content, startPosition, length));
+	}
+
+	/**
+	 * Checks whether Message object is empty <br>
+	 * Returns true if  <br>
+	 * {@code
+	 * null == this.text || StringUtils.isEmpty(this.text) || this.fields.size() == 0
+	 * }
+	 * 
+	 * @return true of false
+	 */
+	public boolean isEmptyMessage() {
+		if (null == this.text || StringUtils.isEmpty(this.text) || this.fields.size() == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

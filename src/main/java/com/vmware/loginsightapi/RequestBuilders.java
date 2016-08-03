@@ -43,5 +43,26 @@ public abstract class RequestBuilders {
 	public static ConstraintBuilder constraint() {
 		return new ConstraintBuilder();
 	}
+	
+	/**
+	 * Returns a new instance of IngestionRequestBuilder
+	 * 
+	 * @return Object of IngestionRequestBuilder
+	 * @see IngestionRequestBuilder
+	 */
+	public static IngestionRequestBuilder ingestionRequest() {
+		return new IngestionRequestBuilder();
+	}
+	
+	/**
+	 * Returns a new instance of MessageBuilder
+	 * 
+	 * @return Object of MessageBuilder
+	 * @see MessageBuilder
+	 */
+	public static MessageBuilder message() {
+		return new MessageBuilder();
+	}
+	
 
 }

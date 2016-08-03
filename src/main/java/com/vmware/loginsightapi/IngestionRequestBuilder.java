@@ -20,7 +20,7 @@ import com.vmware.loginsightapi.core.Message;
  * } <br>
  * {@code
  * new IngestionRequetBuilder().withMessage(new MessageBuilder("System failed").withField("field1", "value1"))
- * }
+ * } <br>
  */
 public class IngestionRequestBuilder {
 

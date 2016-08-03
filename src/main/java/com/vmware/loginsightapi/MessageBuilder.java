@@ -21,7 +21,6 @@ public class MessageBuilder {
 	 * Default constructor
 	 */
 	public MessageBuilder() {
-		// this.sink = sink;
 		message = new Message();
 	}
 
@@ -62,6 +61,27 @@ public class MessageBuilder {
 	 */
 	public MessageBuilder withField(String name, String startPosition, String length) {
 		message.addField(name, startPosition, length);
+		return this;
+	}
+	
+	/**
+	 * Set the provided timestamp to the Message
+	 * 
+	 * @param timeStamp timeStamp of the message
+	 * @return MessageBuilder instance (object)
+	 */
+	public MessageBuilder withTimestamp(long timeStamp) {
+		message.setTimestamp(timeStamp);
+		return this;
+	}
+	
+	/**
+	 * Automatically set the current timestamp to Message
+	 * 
+	 * @return MessageBuilder instance (this)
+	 */
+	public MessageBuilder withCurrentTimestamp() {
+		message.setTimestamp();
 		return this;
 	}
 
