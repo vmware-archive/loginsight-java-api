@@ -18,7 +18,7 @@ notify:
 publish:
   coverage:
     server: https://coverage.vmware.run
-    token: $$GITHUB_AUTOMATION_API_KEY
+    token: abf92aa9c391920b79066a3a606534f237333a1b
     when:
       repo: vmware/loginsight-java-api
       branch: master
