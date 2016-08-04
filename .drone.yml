@@ -11,7 +11,7 @@ build:
       COMMIT: $$COMMIT
       GRADLE_USER_HOME: ~/.gradle
     commands:
-      - ./gradlew build
+      - ./gradlew build jacocoTestReport
 notify:
   gitter:
     webhook: https://webhooks.gitter.im/e/b08153e167256c8100ff
