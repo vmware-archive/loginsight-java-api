@@ -19,6 +19,7 @@ publish:
   coverage:
     server: https://coverage.vmware.run
     token: $$GITHUB_TOKEN
+    include: .+\\.xml$
     when:
       repo: vmware/loginsight-java-api
       branch: master
