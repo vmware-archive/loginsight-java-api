@@ -28,7 +28,7 @@ Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on an
 ### Build & Run
 
 ~~~bash
-$ ./gradlew assemble
+$ ./gradlew build
 ~~~
 
 
