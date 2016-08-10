@@ -36,12 +36,7 @@ $ ./gradlew assemble
 
 ### Connecting to LogInsight
 ~~~java
-Properties connectionConfig = new Properties();
-connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME, "https");
-connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST, "host-name");
-connectionConfig.setProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT, "port-number");
-LogInsightClient client = new LogInsightClient(connectionConfig);
-client.connect();
+LogInsightClient client = new LogInsightClient("host-name", "username", "password");
 ~~~
 
 ### Ingestion of messages to LogInsight
