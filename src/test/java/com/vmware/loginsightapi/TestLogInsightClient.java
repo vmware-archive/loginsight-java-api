@@ -8,12 +8,9 @@
  */
 package com.vmware.loginsightapi;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
 import org.junit.Assert;
@@ -31,6 +28,7 @@ import com.vmware.loginsightapi.core.LogInsightApiError;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 
+
 @Ignore
 public class TestLogInsightClient {
 
@@ -38,29 +36,13 @@ public class TestLogInsightClient {
 	private final static Logger logger = LoggerFactory.getLogger(TestLogInsightClient.class);
 	String user;
 	String password;
+	Configuration config;
 
 	@Before
 	public void setUp() {
-		user = System.getenv("user");
-		password = System.getenv("password");
-		Properties connectionConfig = new Properties();
-		try {
-			connectionConfig.load(getClass().getResourceAsStream("/config.properties"));
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		
-		if (StringUtils.isEmpty(user)) {
-			user = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_USER);
-		}
-		
-		if (StringUtils.isEmpty(password)) {
-			password = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PASSWORD);
-		}
-		
+		Configuration config = Configuration.buildFromConfig("config-integration.properties");
 		LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy = new AsyncLogInsightConnectionStrategy();
-		client = new LogInsightClient(connectionStrategy, connectionConfig);
-		client.connect(user, password);
+		client = new LogInsightClient(config, connectionStrategy);
 	}
 
 	@Test

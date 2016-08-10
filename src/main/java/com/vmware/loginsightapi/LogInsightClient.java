@@ -12,13 +12,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -74,8 +72,8 @@ public class LogInsightClient implements AutoCloseable {
 
 	private String sessionId;
 
-	private final LogInsightConnectionStrategy connectionStrategy;
-	private final Properties connectionConfig;
+	private LogInsightConnectionStrategy connectionStrategy;
+	private Configuration config;
 
 	private final CloseableHttpAsyncClient asyncHttpClient;
 
@@ -84,29 +82,72 @@ public class LogInsightClient implements AutoCloseable {
 	/**
 	 * Default LogInsightClient constructor
 	 * 
-	 * @param connectionConfig
-	 *            Properties configuration
+	 * @param config
+	 *            Configuration object
+	 * @see Configuration
 	 */
-	public LogInsightClient(Properties connectionConfig) {
+	public LogInsightClient(Configuration config) {
 		this.connectionStrategy = new AsyncLogInsightConnectionStrategy();
-		this.connectionConfig = connectionConfig;
+		this.config = config;
 		asyncHttpClient = connectionStrategy.getHttpClient();
+		this.connect();
 	}
-	
+
 	/**
-	 * Builds LogInsightClient object with connection strategy and configuration
-	 * properties
+	 * Builds LogInsightClient object with config object and connection strategy
 	 * 
+	 * @param config
+	 *            Configuration object
 	 * @param connectionStrategy
 	 *            Connection strategy to use
-	 * @param connectionConfig
-	 *            Properties configuration
+	 * 
 	 */
-	public LogInsightClient(LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy,
-			Properties connectionConfig) {
+	public LogInsightClient(Configuration config,
+			LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy) {
 		this.connectionStrategy = connectionStrategy;
-		this.connectionConfig = connectionConfig;
+		this.config = config;
 		asyncHttpClient = connectionStrategy.getHttpClient();
+		this.connect();
+	}
+
+	/**
+	 * LogInsightClient constructor
+	 * 
+	 * @param host
+	 *            LogInsight hostname
+	 * @param user
+	 *            user name
+	 * @param password
+	 *            password
+	 * 
+	 */
+	public LogInsightClient(String host, String user, String password) {
+		this.connectionStrategy = new AsyncLogInsightConnectionStrategy();
+		this.config = new Configuration(host, user, password);
+		asyncHttpClient = connectionStrategy.getHttpClient();
+		this.connect();
+	}
+
+	/**
+	 * Builds LogInsightClient object with basic config parameters and
+	 * connection strategy
+	 * 
+	 * @param host
+	 *            LogInsight host name
+	 * @param user
+	 *            LogInsight user name
+	 * @param password
+	 *            LogInsight password
+	 * @param connectionStrategy
+	 *            Connection strategy to use
+	 * 
+	 */
+	public LogInsightClient(String host, String user, String password,
+			LogInsightConnectionStrategy<CloseableHttpAsyncClient> connectionStrategy) {
+		this.connectionStrategy = connectionStrategy;
+		this.config = new Configuration(host, user, password);
+		asyncHttpClient = connectionStrategy.getHttpClient();
+		this.connect();
 	}
 
 	/**
@@ -115,9 +156,7 @@ public class LogInsightClient implements AutoCloseable {
 	 * @return api url for query
 	 */
 	public String apiUrl() {
-		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://"
-				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":"
-				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_PORT);
+		return config.getScheme() + "://" + config.getHost() + ":" + config.getPort();
 	}
 
 	/**
@@ -175,13 +214,8 @@ public class LogInsightClient implements AutoCloseable {
 	 * @return url of the ingestion API
 	 */
 	public String ingestionApiUrl() {
-		String logInsightIngestionPort = ""+ LogInsightConnectionConfig.DEFAULT_INGESTION_PORT;
-		if (StringUtils.isNotEmpty(connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT))) {
-			logInsightIngestionPort = connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_INGESTION_PORT);
-		}
-		return connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_CONNECTION_SCHEME) + "://"
-				+ connectionConfig.getProperty(LogInsightConnectionConfig.LOGINSIGHT_HOST) + ":"
-				+ logInsightIngestionPort + API_URL_INGESTION + DEFAULT_INGESTION_AGENT_ID;
+		return config.getScheme() + "://" + config.getHost() + ":" + config.getIngestionPort() + API_URL_INGESTION
+				+ DEFAULT_INGESTION_AGENT_ID;
 	}
 
 	/**
@@ -211,9 +245,9 @@ public class LogInsightClient implements AutoCloseable {
 	 * @throws AuthFailure
 	 *             authentication failure exception
 	 */
-	public void connect(String userName, String password) throws AuthFailure {
+	protected void connect() throws AuthFailure {
 
-		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userName, password);
+		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", config.getUser(), config.getPassword());
 
 		HttpPost httpPost = new HttpPost(sessionUrl());
 		httpPost.addHeader("Accept", "application/json");
@@ -526,7 +560,8 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
-	 * Returns a properly created instance of {@code HttpGet} based on the provided URL
+	 * Returns a properly created instance of {@code HttpGet} based on the
+	 * provided URL
 	 * 
 	 * @param apiUrl
 	 *            base url of the api
@@ -549,9 +584,11 @@ public class LogInsightClient implements AutoCloseable {
 		addHeaders(request, getSessionHeaders());
 		return request;
 	}
-	
+
 	/**
-	 * Returns a properly formed {@code HttpPost} for the given {@code IngestionRequest}
+	 * Returns a properly formed {@code HttpPost} for the given
+	 * {@code IngestionRequest}
+	 * 
 	 * @param ingestionRequest
 	 * @return
 	 */
