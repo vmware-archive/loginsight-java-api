@@ -238,10 +238,6 @@ public class LogInsightClient implements AutoCloseable {
 	 * authentication with LogInsight, so that {@code getSessionId} returns a
 	 * proper session id.
 	 * 
-	 * @param userName
-	 *            name of the user
-	 * @param password
-	 *            password of the user
 	 * @throws AuthFailure
 	 *             authentication failure exception
 	 */
@@ -589,8 +585,8 @@ public class LogInsightClient implements AutoCloseable {
 	 * Returns a properly formed {@code HttpPost} for the given
 	 * {@code IngestionRequest}
 	 * 
-	 * @param ingestionRequest
-	 * @return
+	 * @param ingestionRequest Ingestion request body
+	 * @return HttpPost object
 	 */
 	public HttpPost getIngestionHttpRequest(IngestionRequest ingestionRequest) {
 		HttpPost httpPost = null;

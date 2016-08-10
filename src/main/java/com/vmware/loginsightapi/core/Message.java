@@ -115,9 +115,6 @@ public class Message {
 
 	/**
 	 * Automatically set the current time in mills to Message
-	 * 
-	 * @param timeStamp
-	 *            the timeStamp to set
 	 */
 	public void setTimestamp() {
 		this.timestamp = DateTime.now().getMillis();

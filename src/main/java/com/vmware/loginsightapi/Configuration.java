@@ -130,10 +130,10 @@ public class Configuration {
 	/**
 	 * Builds the configuration from a property map
 	 * 
-	 * @param configFile
-	 *            Name of the configuration (full path or class path)
-	 * @throws ConfigurationException
-	 *             configuration exception
+	 * @param configData
+	 *            Config data in a hashmap
+	 * @return Configuration object           
+	 * 
 	 */
 	public static Configuration buildConfig(Map<String, String> configData) {
 
