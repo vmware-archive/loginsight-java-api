@@ -43,7 +43,7 @@ task sourcesJar(type: Jar) {
 
 group = "com.vmware.loginsightapi"
 archivesBaseName = "loginsight-java-api"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 if (!project.hasProperty('sonatypeUsername')) 
 	ext.sonatypeUsername = ""
