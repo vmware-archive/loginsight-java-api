@@ -73,7 +73,7 @@ public class IngestionRequest {
 	 * @param messages List of Message objects
 	 */
 	public void addMessages(List<Message> messages) {
-		messages.addAll(messages);
+		this.messages.addAll(messages);
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class IngestionRequest {
 	 * @return count of messages
 	 */
 	public int count() {
-		return messages.size();
+		return this.messages.size();
 	}
 	
 	/**

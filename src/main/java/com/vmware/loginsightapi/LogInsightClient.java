@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -243,8 +244,9 @@ public class LogInsightClient implements AutoCloseable {
 	 */
 	protected void connect() throws AuthFailure {
 
-		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", config.getUser(), config.getPassword());
-
+		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", config.getUser(),
+				config.getPassword());
+		System.out.println("auth body "+ body);
 		HttpPost httpPost = new HttpPost(sessionUrl());
 		httpPost.addHeader("Accept", "application/json");
 		httpPost.addHeader("Content-type", "application/json");
@@ -380,6 +382,60 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
+	 * Performs message query. Returns a CompletableFuture
+	 * 
+	 * @param apiUrl
+	 *            relative url of the API
+	 * @param future
+	 *            true or false
+	 * @return MessageQueryResponse CompletableFuture object
+	 * @throws LogInsightApiException
+	 *             Exception
+	 */
+	public CompletableFuture<MessageQueryResponse> messageQuery(String apiUrl, boolean future) {
+		HttpGet request = null;
+		CompletableFuture<MessageQueryResponse> completableFuture = new CompletableFuture<MessageQueryResponse>();
+		try {
+			request = getHttpRequest(apiUrl, false);
+			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
+
+				@Override
+				public void completed(HttpResponse httpResponse) {
+
+					try {
+						InputStream responseBody = httpResponse.getEntity().getContent();
+						String responseString = IOUtils.toString(responseBody, "UTF-8");
+						logger.warn("Response: " + responseString);
+						completableFuture.complete(MessageQueryResponse.fromJsonString(responseString));
+					} catch (IOException e) {
+						e.printStackTrace();
+						completableFuture.completeExceptionally(e);
+						// callback.completed(null, new
+						// LogInsightApiError("Unable to process the query
+						// response", e));
+					}
+
+				}
+
+				@Override
+				public void failed(Exception ex) {
+					completableFuture.completeExceptionally(new LogInsightApiException("Failed message Query", ex));
+				}
+
+				@Override
+				public void cancelled() {
+					completableFuture.completeExceptionally(new LogInsightApiException("Cancelled message Query"));
+				}
+
+			});
+			logger.info("Finished completely!!!");
+		} catch (Exception ie) {
+			completableFuture.completeExceptionally(new LogInsightApiException("Message query failed", ie));
+		}
+		return completableFuture.thenApply(response -> response);
+	}
+
+	/**
 	 * Performs aggregate query
 	 * 
 	 * @param apiUrl
@@ -465,6 +521,57 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
+	 * Performs aggregate query. Accepts callback
+	 * 
+	 * @param apiUrl
+	 *            relative url of the API
+	 * @param future
+	 *            boolean
+	 * @return AggregateResponse CompletableFuture
+	 *         
+	 */
+	public CompletableFuture<AggregateResponse> aggregateQuery(String apiUrl, boolean future) {
+		HttpGet request = null;
+		CompletableFuture<AggregateResponse> completableFuture = new CompletableFuture<AggregateResponse>();
+		try {
+			request = getHttpRequest(apiUrl, true);
+			logger.debug("Querying " + aggregateQueryUrl() + apiUrl);
+			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
+
+				@Override
+				public void completed(HttpResponse httpResponse) {
+
+					try {
+						String responseString = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+						logger.warn("Response: " + responseString);
+						completableFuture.complete(AggregateResponse.fromJsonString(responseString));
+
+					} catch (IOException e) {
+						e.printStackTrace();
+						completableFuture.completeExceptionally(
+								new LogInsightApiException("Unable to process the query response", e));
+					}
+
+				}
+
+				@Override
+				public void failed(Exception ex) {
+					completableFuture.completeExceptionally(new LogInsightApiException("Failed message Query", ex));
+				}
+
+				@Override
+				public void cancelled() {
+					completableFuture.completeExceptionally(new LogInsightApiException("Cancelled message Query"));
+				}
+
+			});
+		} catch (Exception ie) {
+			completableFuture.completeExceptionally(new LogInsightApiException("Message query failed", ie));
+		}
+		return completableFuture.thenApply(response -> response);
+	}
+
+	/**
 	 * Ingest messages to loginsight
 	 * 
 	 * @param messages
@@ -505,6 +612,57 @@ public class LogInsightClient implements AutoCloseable {
 		} catch (IOException e) {
 			throw new LogInsightApiException("Ingestion failed", e);
 		}
+	}
+
+	/**
+	 * Ingest messages to loginsight
+	 * 
+	 * @param messages
+	 *            IngestionRequest object with list of messages
+	 * @param future
+	 * 			  boolean to indicate future to be returned.
+	 * @return IngestionResponse CompletableFuture object
+	 * @see IngestionRequest
+	 * @see IngestionResponse
+	 */
+	public CompletableFuture<IngestionResponse> ingest(IngestionRequest messages, boolean future) {
+		HttpPost httpPost = null;
+		CompletableFuture<IngestionResponse> completableFuture = new CompletableFuture<IngestionResponse>();
+		try {
+			httpPost = getIngestionHttpRequest(messages);
+			logger.info("Sending : " + messages.toJson());
+			asyncHttpClient.execute(httpPost, new FutureCallback<HttpResponse>() {
+
+				@Override
+				public void completed(HttpResponse httpResponse) {
+
+					try {
+						String responseString = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
+						logger.warn("Response: " + responseString);
+						completableFuture.complete(IngestionResponse.fromJsonString(responseString));
+
+					} catch (IOException e) {
+						e.printStackTrace();
+						completableFuture.completeExceptionally(
+								new LogInsightApiException("Unable to process the query response", e));
+					}
+				}
+
+				@Override
+				public void failed(Exception ex) {
+					completableFuture.completeExceptionally(new LogInsightApiException("Failed message Query", ex));
+				}
+
+				@Override
+				public void cancelled() {
+					completableFuture.completeExceptionally(new LogInsightApiException("Cancelled message Query"));
+				}
+
+			});
+		} catch (Exception e) {
+			completableFuture.completeExceptionally(new LogInsightApiException("Ingestion failed", e));
+		}
+		return completableFuture.thenApply(response -> response);
 	}
 
 	/**
@@ -585,7 +743,8 @@ public class LogInsightClient implements AutoCloseable {
 	 * Returns a properly formed {@code HttpPost} for the given
 	 * {@code IngestionRequest}
 	 * 
-	 * @param ingestionRequest Ingestion request body
+	 * @param ingestionRequest
+	 *            Ingestion request body
 	 * @return HttpPost object
 	 */
 	public HttpPost getIngestionHttpRequest(IngestionRequest ingestionRequest) {

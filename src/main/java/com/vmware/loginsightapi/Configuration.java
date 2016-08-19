@@ -9,11 +9,12 @@
 package com.vmware.loginsightapi;
 
 import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
@@ -23,6 +24,7 @@ import org.apache.commons.configuration2.io.CombinedLocationStrategy;
 import org.apache.commons.configuration2.io.FileLocationStrategy;
 import org.apache.commons.configuration2.io.FileSystemLocationStrategy;
 import org.apache.commons.configuration2.io.ProvidedURLLocationStrategy;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,11 @@ public class Configuration {
 	public static final String KEY_CONNECTION_SCHEME = "loginsight.connection.scheme";
 
 	/**
+	 * Property key for Connection scheme
+	 */
+	public static final String KEY_AGENT_ID = "loginsight.ingestion.agentId";
+
+	/**
 	 * Default protocol scheme
 	 */
 	public static final String DEFAULT_SCHEME = "https";
@@ -94,6 +101,7 @@ public class Configuration {
 	String password;
 	String port;
 	String ingestionPort;
+	String agentId;
 	String scheme;
 
 	private final static Logger logger = LoggerFactory.getLogger(Configuration.class);
@@ -105,6 +113,7 @@ public class Configuration {
 		this.port = Integer.toString(DEFAULT_PORT);
 		this.ingestionPort = Integer.toString(DEFAULT_INGESTION_PORT);
 		this.scheme = DEFAULT_SCHEME;
+		this.agentId = UUID.randomUUID().toString();
 	}
 
 	/**
@@ -125,6 +134,7 @@ public class Configuration {
 		this.port = Integer.toString(DEFAULT_PORT);
 		this.ingestionPort = Integer.toString(DEFAULT_INGESTION_PORT);
 		this.scheme = DEFAULT_SCHEME;
+		this.agentId = UUID.randomUUID().toString();
 	}
 
 	/**
@@ -132,7 +142,7 @@ public class Configuration {
 	 * 
 	 * @param configData
 	 *            Config data in a hashmap
-	 * @return Configuration object           
+	 * @return Configuration object
 	 * 
 	 */
 	public static Configuration buildConfig(Map<String, String> configData) {
@@ -143,31 +153,39 @@ public class Configuration {
 		liConfig.ingestionPort = Integer.toString(DEFAULT_INGESTION_PORT);
 		liConfig.scheme = DEFAULT_SCHEME;
 
-		if (configData.containsKey(KEY_LI_HOST) && null != configData.get(KEY_LI_HOST) && StringUtils.isNotEmpty(configData.get(KEY_LI_HOST))) {
+		if (configData.containsKey(KEY_LI_HOST) && null != configData.get(KEY_LI_HOST)
+				&& StringUtils.isNotEmpty(configData.get(KEY_LI_HOST))) {
 			liConfig.host = configData.get(KEY_LI_HOST);
 		}
 
-		if (configData.containsKey(KEY_LI_PORT) && null != configData.get(KEY_LI_PORT) && StringUtils.isNotEmpty(configData.get(KEY_LI_PORT))) {
+		if (configData.containsKey(KEY_LI_PORT) && null != configData.get(KEY_LI_PORT)
+				&& StringUtils.isNotEmpty(configData.get(KEY_LI_PORT))) {
 			logger.info("setting port as well");
-			liConfig.port = configData.get(KEY_LI_PORT);
+			liConfig.setPort(configData.get(KEY_LI_PORT));
 		}
 
 		if (configData.containsKey(KEY_LI_INGESTION_PORT) && null != configData.get(KEY_LI_INGESTION_PORT)
 				&& StringUtils.isNotEmpty(configData.get(KEY_LI_INGESTION_PORT))) {
-			liConfig.ingestionPort = configData.get(KEY_LI_INGESTION_PORT);
+			liConfig.setIngestionPort(configData.get(KEY_LI_INGESTION_PORT));
 		}
 
-		if (configData.containsKey(KEY_LI_USER) && null != configData.get(KEY_LI_USER) && StringUtils.isNotEmpty(configData.get(KEY_LI_USER))) {
+		if (configData.containsKey(KEY_LI_USER) && null != configData.get(KEY_LI_USER)
+				&& StringUtils.isNotEmpty(configData.get(KEY_LI_USER))) {
 			liConfig.user = configData.get(KEY_LI_USER);
 		}
 
-		if (configData.containsKey(KEY_LI_PASSWORD) && null != configData.get(KEY_LI_PASSWORD) && StringUtils.isNotEmpty(configData.get(KEY_LI_PASSWORD))) {
+		if (configData.containsKey(KEY_LI_PASSWORD) && null != configData.get(KEY_LI_PASSWORD)
+				&& StringUtils.isNotEmpty(configData.get(KEY_LI_PASSWORD))) {
 			liConfig.password = configData.get(KEY_LI_PASSWORD);
 		}
 
 		if (configData.containsKey(KEY_CONNECTION_SCHEME) && null != configData.get(KEY_CONNECTION_SCHEME)
 				&& StringUtils.isNotEmpty(configData.get(KEY_CONNECTION_SCHEME))) {
-			liConfig.scheme = configData.get(KEY_CONNECTION_SCHEME);
+			liConfig.setScheme(configData.get(KEY_CONNECTION_SCHEME));
+		}
+		if (configData.containsKey(KEY_AGENT_ID) && null != configData.get(KEY_AGENT_ID)
+				&& StringUtils.isNotEmpty(configData.get(KEY_AGENT_ID))) {
+			liConfig.setAgentId(configData.get(KEY_AGENT_ID));
 		}
 		return liConfig;
 	}
@@ -188,7 +206,15 @@ public class Configuration {
 	 *            http or https
 	 */
 	public void setScheme(String scheme) {
-		this.scheme = scheme;
+		if (null != scheme && !StringUtils.isEmpty(scheme)) {
+			if (DEFAULT_SCHEME.equals("https")) {
+				this.scheme = scheme;
+			} else {
+				throw new NotImplementedException("only https scheme is available");
+			}
+		} else {
+			throw new IllegalArgumentException("Invalid http scheme. Should be https");
+		}
 	}
 
 	/**
@@ -207,7 +233,38 @@ public class Configuration {
 	 *            ingestion port number (string format)
 	 */
 	public void setIngestionPort(String ingestionPort) {
-		this.ingestionPort = ingestionPort;
+		if (null != ingestionPort && !StringUtils.isEmpty(ingestionPort)) {
+			this.ingestionPort = ingestionPort;
+		} else {
+			throw new IllegalArgumentException("Invalid Ingestion port ");
+		}
+	}
+
+	/**
+	 * Agent ID
+	 * 
+	 * @return agentId (string format)
+	 */
+	public String getAgentId() {
+		return agentId;
+	}
+
+	/**
+	 * Updates the AgentID
+	 * 
+	 * @param agentId
+	 *            LI agent id
+	 * 
+	 * @throws IllegalArgumentException
+	 *             when the agentId is not a valid UUID
+	 */
+	public void setAgentId(String agentId) {
+		if (null != agentId && !StringUtils.isEmpty(agentId)) {
+			UUID uuid = UUID.fromString(agentId);
+			this.agentId = uuid.toString();
+		} else {
+			throw new IllegalArgumentException("Invalid Agent ID");
+		}
 	}
 
 	/**
@@ -217,7 +274,11 @@ public class Configuration {
 	 *            Host name of the LogInsight server
 	 */
 	public void setHost(String host) {
-		this.host = host;
+		if (null != host && !StringUtils.isEmpty(host)) {
+			this.host = host;
+		} else {
+			throw new IllegalArgumentException("Invalid host name ");
+		}
 	}
 
 	/**
@@ -227,7 +288,11 @@ public class Configuration {
 	 *            user name for LogInsight
 	 */
 	public void setUser(String user) {
-		this.user = user;
+		if (null != user && !StringUtils.isEmpty(user)) {
+			this.user = user;
+		} else {
+			throw new IllegalArgumentException("Invalid user name ");
+		}
 	}
 
 	/**
@@ -237,7 +302,11 @@ public class Configuration {
 	 *            password for LogInsight
 	 */
 	public void setPassword(String password) {
-		this.password = password;
+		if (null != password && !StringUtils.isEmpty(password)) {
+			this.password = password;
+		} else {
+			throw new IllegalArgumentException("Invalid password ");
+		}
 	}
 
 	/**
@@ -247,7 +316,11 @@ public class Configuration {
 	 *            Port number (string format)
 	 */
 	public void setPort(String port) {
-		this.port = port;
+		if (null != port && !StringUtils.isEmpty(port)) {
+			this.port = port;
+		} else {
+			throw new IllegalArgumentException("Invalid port ");
+		}
 	}
 
 	/**
@@ -323,7 +396,7 @@ public class Configuration {
 	 * loginsight.port = port number <br>
 	 * loginsight.user = User name <br>
 	 * loginsight.password = password <br>
-	 * loginsight.agentId = agentId <br>
+	 * loginsight.ingestion.agentId = agentId <br>
 	 * loginsight.connection.scheme = http protocol scheme <br>
 	 * loginsight.ingestion.port = Ingestion port number <br>
 	 * 

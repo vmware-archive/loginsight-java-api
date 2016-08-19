@@ -204,7 +204,7 @@ public class Message {
 	 * 
 	 * @return true of false
 	 */
-	public boolean isEmptyMessage() {
+	public boolean checkIsEmpty() {
 		if (null == this.text || StringUtils.isEmpty(this.text) || this.fields.size() == 0) {
 			return true;
 		} else {
