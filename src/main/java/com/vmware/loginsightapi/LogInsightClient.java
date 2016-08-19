@@ -287,112 +287,15 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
-	 * This method uses CloseableHttpAsyncClient to execute the remote query.
-	 * Callers should ensure that {@code connect()} is invoked before calling
-	 * this method.
-	 *
-	 * @param apiUrl
-	 *            for LogInsight 3.0 API. The URL looks like
-	 *            text/CONTAINS+Test/timestamp/GT+0
-	 *
-	 * @return a JSONObject representing the LI response
-	 * @throws LogInsightApiException
-	 *             general LogInsightApiException
-	 */
-	public MessageQueryResponse messageQuery(String apiUrl) throws LogInsightApiException {
-		HttpGet request = null;
-		try {
-			request = getHttpRequest(apiUrl, false);
-			Future<HttpResponse> future = asyncHttpClient.execute(request, null);
-			HttpResponse httpResponse = future.get();
-			logger.debug("Response: " + httpResponse.getStatusLine());
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				InputStream responseBody = httpResponse.getEntity().getContent();
-				String responseString = IOUtils.toString(responseBody, "UTF-8");
-				logger.warn("Response: " + responseString);
-				return MessageQueryResponse.fromJsonString(responseString);
-			}
-			if ((httpResponse.getStatusLine().getStatusCode() == 401)
-					|| (httpResponse.getStatusLine().getStatusCode() == 440)) {
-				logger.warn("Session expired, retrying the request after authentication");
-				sessionId = null;
-				throw new AuthFailure("Invalid session id. Message query failed.");
-			} else {
-				throw new LogInsightApiException(
-						"Unable to query the response from LogInsight " + httpResponse.getStatusLine());
-			}
-		} catch (InterruptedException ie) {
-			throw new LogInsightApiException("Message query failed", ie);
-		} catch (ExecutionException ee) {
-			throw new LogInsightApiException("Message query failed", ee);
-		} catch (IOException e) {
-			throw new LogInsightApiException("Message query failed", e);
-		}
-	}
-
-	/**
-	 * Performs message query. Accepts a callback
-	 * 
-	 * @param apiUrl
-	 *            relative url of the API
-	 * @param callback
-	 *            callback
-	 * @throws LogInsightApiException
-	 *             Exception
-	 */
-	public void messageQuery(String apiUrl, AsyncCallback<MessageQueryResponse, LogInsightApiError> callback)
-			throws LogInsightApiException {
-		HttpGet request = null;
-		try {
-			request = getHttpRequest(apiUrl, false);
-			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
-
-				@Override
-				public void completed(HttpResponse httpResponse) {
-
-					try {
-						InputStream responseBody = httpResponse.getEntity().getContent();
-						String responseString = IOUtils.toString(responseBody, "UTF-8");
-						logger.warn("Response: " + responseString);
-						callback.completed(MessageQueryResponse.fromJsonString(responseString),
-								LogInsightApiError.create());
-
-					} catch (IOException e) {
-						e.printStackTrace();
-						callback.completed(null, new LogInsightApiError("Unable to process the query response", e));
-					}
-
-				}
-
-				@Override
-				public void failed(Exception ex) {
-					callback.completed(null, new LogInsightApiError("Failed message Query", ex));
-				}
-
-				@Override
-				public void cancelled() {
-					callback.completed(null, new LogInsightApiError("Cancelled message Query", ""));
-				}
-
-			});
-			logger.info("Finished completely!!!");
-		} catch (Exception ie) {
-			callback.completed(null, new LogInsightApiError("Message query failed", ie));
-		}
-	}
-
-	/**
 	 * Performs message query. Returns a CompletableFuture
 	 * 
 	 * @param apiUrl
 	 *            relative url of the API
-	 * @param future
-	 *            true or false
 	 * @return MessageQueryResponse CompletableFuture object
 	 * @throws LogInsightApiException
 	 *             Exception
 	 */
-	public CompletableFuture<MessageQueryResponse> messageQuery(String apiUrl, boolean future) {
+	public CompletableFuture<MessageQueryResponse> messageQuery(String apiUrl) {
 		HttpGet request = null;
 		CompletableFuture<MessageQueryResponse> completableFuture = new CompletableFuture<MessageQueryResponse>();
 		try {
@@ -436,101 +339,14 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
-	 * Performs aggregate query
-	 * 
-	 * @param apiUrl
-	 *            relative url of the API
-	 * @return AggregateResponse
-	 * @throws LogInsightApiException
-	 *             exception
-	 */
-	public AggregateResponse aggregateQuery(String apiUrl) throws LogInsightApiException {
-		HttpGet request = null;
-		try {
-			request = getHttpRequest(apiUrl, true);
-			Future<HttpResponse> future = asyncHttpClient.execute(request, null);
-			HttpResponse httpResponse = future.get();
-			logger.debug("Aggregate Response: " + httpResponse.getStatusLine());
-			System.out.println("Aggregate Response: " + httpResponse.getStatusLine());
-
-			if ((httpResponse.getStatusLine().getStatusCode() == 401)
-					|| (httpResponse.getStatusLine().getStatusCode() == 440)) {
-				logger.warn("Session expired, retrying the request after authentication");
-				sessionId = null;
-				throw new AuthFailure("Session expired. Received " + httpResponse.getStatusLine() + " from LogInsight");
-			} else {
-				InputStream responseBody = httpResponse.getEntity().getContent();
-				String responseString = IOUtils.toString(responseBody, "UTF-8");
-				logger.warn("Response: " + responseString);
-				return AggregateResponse.fromJsonString(responseString);
-			}
-		} catch (InterruptedException ie) {
-			throw new LogInsightApiException("Aggregation query failed", ie);
-		} catch (ExecutionException ee) {
-			throw new LogInsightApiException("Aggregation query failed", ee);
-		} catch (IOException e) {
-			throw new LogInsightApiException("Aggregation query failed", e);
-		}
-	}
-
-	/**
 	 * Performs aggregate query. Accepts callback
 	 * 
 	 * @param apiUrl
 	 *            relative url of the API
-	 * @param callback
-	 *            callback
-	 */
-	public void aggregateQuery(String apiUrl, AsyncCallback<AggregateResponse, LogInsightApiError> callback) {
-		HttpGet request = null;
-		try {
-			request = getHttpRequest(apiUrl, true);
-			logger.debug("Querying " + aggregateQueryUrl() + apiUrl);
-			asyncHttpClient.execute(request, new FutureCallback<HttpResponse>() {
-
-				@Override
-				public void completed(HttpResponse httpResponse) {
-
-					try {
-						String responseString = IOUtils.toString(httpResponse.getEntity().getContent(), "UTF-8");
-						logger.warn("Response: " + responseString);
-						callback.completed(AggregateResponse.fromJsonString(responseString),
-								LogInsightApiError.create());
-
-					} catch (IOException e) {
-						e.printStackTrace();
-						callback.completed(null, new LogInsightApiError("Unable to process the query response", e));
-					}
-
-				}
-
-				@Override
-				public void failed(Exception ex) {
-					callback.completed(null, new LogInsightApiError("Failed message Query", ex));
-				}
-
-				@Override
-				public void cancelled() {
-					callback.completed(null, new LogInsightApiError("Cancelled message Query", ""));
-				}
-
-			});
-		} catch (Exception ie) {
-			callback.completed(null, new LogInsightApiError("Message query failed", ie));
-		}
-	}
-
-	/**
-	 * Performs aggregate query. Accepts callback
-	 * 
-	 * @param apiUrl
-	 *            relative url of the API
-	 * @param future
-	 *            boolean
 	 * @return AggregateResponse CompletableFuture
 	 *         
 	 */
-	public CompletableFuture<AggregateResponse> aggregateQuery(String apiUrl, boolean future) {
+	public CompletableFuture<AggregateResponse> aggregateQuery(String apiUrl) {
 		HttpGet request = null;
 		CompletableFuture<AggregateResponse> completableFuture = new CompletableFuture<AggregateResponse>();
 		try {
@@ -576,56 +392,11 @@ public class LogInsightClient implements AutoCloseable {
 	 * 
 	 * @param messages
 	 *            IngestionRequest object with list of messages
-	 * @return IngestionResponse object
-	 * @throws LogInsightApiException
-	 *             Api exception
-	 * @see IngestionRequest
-	 * @see IngestionResponse
-	 */
-	public IngestionResponse ingest(IngestionRequest messages) throws LogInsightApiException {
-
-		// IngestionResponse response = null;
-		HttpPost httpPost = null;
-		try {
-			httpPost = getIngestionHttpRequest(messages);
-			logger.info("Sending : " + messages.toJson());
-			Future<HttpResponse> future = asyncHttpClient.execute(httpPost, null);
-			HttpResponse httpResponse = future.get();
-			logger.debug("Response: " + httpResponse.getStatusLine());
-			InputStream responseBody = httpResponse.getEntity().getContent();
-			String responseString = IOUtils.toString(responseBody, "UTF-8");
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				// String responseString =
-				// convertStreamToString(httpResponse.getEntity().getContent());
-				logger.warn("Response: " + responseString);
-				return IngestionResponse.fromJsonString(responseString);
-			} else {
-				// String responseString =
-				// convertStreamToString(httpResponse.getEntity().getContent());
-				throw new LogInsightApiException("Unable to send messages to LogInsight. Received "
-						+ httpResponse.getStatusLine() + " from LogInsight. Response = " + responseString);
-			}
-		} catch (InterruptedException ie) {
-			throw new LogInsightApiException("Ingestion failed", ie);
-		} catch (ExecutionException ee) {
-			throw new LogInsightApiException("Ingestion failed", ee);
-		} catch (IOException e) {
-			throw new LogInsightApiException("Ingestion failed", e);
-		}
-	}
-
-	/**
-	 * Ingest messages to loginsight
-	 * 
-	 * @param messages
-	 *            IngestionRequest object with list of messages
-	 * @param future
-	 * 			  boolean to indicate future to be returned.
 	 * @return IngestionResponse CompletableFuture object
 	 * @see IngestionRequest
 	 * @see IngestionResponse
 	 */
-	public CompletableFuture<IngestionResponse> ingest(IngestionRequest messages, boolean future) {
+	public CompletableFuture<IngestionResponse> ingest(IngestionRequest messages) {
 		HttpPost httpPost = null;
 		CompletableFuture<IngestionResponse> completableFuture = new CompletableFuture<IngestionResponse>();
 		try {

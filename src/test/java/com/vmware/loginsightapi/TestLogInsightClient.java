@@ -9,7 +9,8 @@
 package com.vmware.loginsightapi;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.After;
@@ -20,14 +21,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
-import com.vmware.loginsightapi.core.LogInsightApiError;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
-
 
 @Ignore
 public class TestLogInsightClient {
@@ -52,9 +50,17 @@ public class TestLogInsightClient {
 				.gt("timestamp", "0").build();
 		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
 				.setConstraints(constraints);
-		MessageQueryResponse messages = client.messageQuery(mqb.toUrlString());
-		Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
-		System.out.println("Returned " + messages.getEvents().size() + " messages");
+		CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
+		MessageQueryResponse messages;
+		try {
+			messages = responseFuture.get();
+			Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
+			System.out.println("Returned " + messages.getEvents().size() + " messages");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
 		long duration = System.nanoTime() - startTime;
 		logger.info("duration=" + duration);
 	}
@@ -67,65 +73,6 @@ public class TestLogInsightClient {
 				.setConstraints(constraints);
 		client.aggregateQuery(aqb.toUrlString());
 	}
-	
-	@Test
-	public void testAggregateQueryCallback() {
-		long startTime = System.nanoTime();
-		final CountDownLatch latch = new CountDownLatch(1);
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100)
-				.setConstraints(constraints);
-		client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsightApiError error) -> {
-			if (error.isError()) {
-				System.out.println("Call failed" + error.getMessage());
-			} else {
-				logger.info("Call completed");
-				logger.info("Returned " + response.getBins().size() + " messages");
-				Assert.assertTrue("Invalid number of messages", response.getBins().size() <= 100);
-				long duration = System.nanoTime() - startTime;
-				logger.info("duration=" + duration);
-				latch.countDown();
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			logger.info("Test Finished completely!!!");
-			e1.printStackTrace();
-		}
-	}
-	
-	@Test
-	public void testMessageQueryLambda() {
-		long startTime = System.nanoTime();
-		logger.info("Starting Call completed");
-		final CountDownLatch latch = new CountDownLatch(1);
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
-				.setConstraints(constraints);
-		client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsightApiError error) -> {
-			if (error.isError()) {
-				System.out.println("Call failed" + error.getMessage());
-			} else {
-				logger.info("Call completed");
-				logger.info("Returned " + response.getEvents().size() + " messages");
-				Assert.assertTrue("Invalid number of messages", response.getEvents().size() <= 100);
-				long duration = System.nanoTime() - startTime;
-				logger.info("duration=" + duration);
-				latch.countDown();
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			logger.info("Test Finished completely!!!");
-			e1.printStackTrace();
-		}
-	}
 
 	@Test
 	public void testIngestion() {
@@ -133,8 +80,17 @@ public class TestLogInsightClient {
 		msg1.addField("vclap_test_id", "11111");
 		IngestionRequest request = new IngestionRequest();
 		request.addMessage(msg1);
-		IngestionResponse response = client.ingest(request);
-		System.out.println("Resonse " + response.getMessage() + response.getStatus() + response.getIngested());
+		CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+		IngestionResponse response;
+		try {
+			response = responseFuture.get();
+			System.out.println("Resonse " + response.getMessage() + response.getStatus() + response.getIngested());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@After
