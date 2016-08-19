@@ -4,27 +4,40 @@
 
 //buildscript {
 //	repositories {
-//		maven { url "https://plugins.gradle.org/m2/" }
-//		mavenLocal()
+//		maven { url "https://plugins.gradle.org/m2" }
+//		mavenCentral()
+////		mavenLocal()
 //	}
 //	dependencies {
-//		classpath 'net.saliman:gradle-cobertura-plugin:2.3.2'
+////		classpath 'net.saliman:gradle-cobertura-plugin:2.3.2'
+//		classpath 'com.github.kt3k.coveralls:2.6.3'
 //	}
 //}
+ 
+ plugins {
+//	 id "net.saliman.cobertura" version "2.3.2"
+	 id 'jacoco'
+	 id 'com.github.kt3k.coveralls' version '2.6.3'
+ }
 
 repositories {	 mavenCentral() }
+
+
  
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+//apply plugin: 'com.github.kt3k.coveralls'
+
 //apply plugin: 'net.saliman.cobertura'
-apply plugin: "jacoco"
+//apply plugin: "jacoco"
 
 jacoco { toolVersion = "0.7.7.201606060606" }
 jacocoTestReport {
 	reports {
 		xml.enabled true
-		//		csv.enabled false
+		html.enabled true
+//				csv.enabled false
 		//		html.destination "${buildDir}/jacoco/html"
 	}
 }
@@ -106,6 +119,11 @@ uploadArchives {
 						name 'Kalyan Venu Gopal Abbaraju'
 						email 'kalyan.abbaraju@gmail.com'
 					}
+					developer {
+						id 'msingh'
+						name 'Manu Pratap Singh'
+						email 'msingh@vmware.com'
+					}
 				}
 			}
 		}
@@ -150,4 +168,5 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 	testCompile 'org.mockito:mockito-core:1.10.19'
 	testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
+//	testRuntime "org.slf4j:slf4j-api:1.7.10"
 }

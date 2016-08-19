@@ -10,8 +10,9 @@ build:
       BUILD_NUMBER: $$BUILD_NUMBER
       COMMIT: $$COMMIT
       GRADLE_USER_HOME: ~/.gradle
+      COVERALLS_REPO_TOKEN: $$COVERALLS_REPO_TOKEN
     commands:
-      - ./gradlew build jacocoTestReport
+      - ./gradlew build jacocoTestReport coveralls
 notify:
   gitter:
     webhook: https://webhooks.gitter.im/e/b08153e167256c8100ff
