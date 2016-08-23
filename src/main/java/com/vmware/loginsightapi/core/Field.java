@@ -11,7 +11,6 @@ package com.vmware.loginsightapi.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vmware.loginsightapi.LogInsightApiException;
 
 /**
  * Class representing individual field in the LogInsight messages.

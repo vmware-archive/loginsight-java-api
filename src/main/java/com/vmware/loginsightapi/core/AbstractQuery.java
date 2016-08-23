@@ -6,19 +6,17 @@
  * Some files may be comprised of various open source software components, each of which
  * has its own license that is located in the source code of the respective component.
  */
-package com.vmware.loginsightapi;
+package com.vmware.loginsightapi.core;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.vmware.loginsightapi.core.FieldConstraint;
-
 /**
- * Abstract class for QueryBuilder.
+ * Abstract class for AbstractQuery.
  */
-public abstract class QueryBuilder<T extends QueryBuilder<T>> {
+public abstract class AbstractQuery<T extends AbstractQuery<T>> {
 
 	/**
 	 * Default max number of messages in query response
@@ -40,9 +38,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	/**
 	 * Default constructor
 	 */
-	public QueryBuilder() {
-		this.limit = QueryBuilder.DEFAULT_LIMIT;
-		this.timeout = QueryBuilder.DEFAULT_TIMEOUT;
+	public AbstractQuery() {
+		this.limit = AbstractQuery.DEFAULT_LIMIT;
+		this.timeout = AbstractQuery.DEFAULT_TIMEOUT;
 		contentPackFields = new ArrayList<String>();
 		constraints = new ArrayList<FieldConstraint>();
 	}
@@ -52,9 +50,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param limit
 	 *            maximum number of events
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> limit(int limit) {
+	public AbstractQuery<T> limit(int limit) {
 		this.limit = limit;
 		return this;
 	}
@@ -64,9 +62,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param timeout
 	 *            Query execution timeout
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> timeout(int timeout) {
+	public AbstractQuery<T> timeout(int timeout) {
 		this.timeout = timeout;
 		return this;
 	}
@@ -77,9 +75,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param contentPackFields
 	 *            List of content pack fields
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> setContentPackFields(List<String> contentPackFields) {
+	public AbstractQuery<T> setContentPackFields(List<String> contentPackFields) {
 		this.contentPackFields = contentPackFields;
 		return this;
 	}
@@ -90,9 +88,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * @param contentPackField
 	 *            field name from the already installed content packs in
 	 *            loginsight
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> addContentPackField(String contentPackField) {
+	public AbstractQuery<T> addContentPackField(String contentPackField) {
 		this.contentPackFields.add(contentPackField);
 		return this;
 	}
@@ -102,9 +100,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param contentPackFields
 	 *            list of content pack fields
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> addContentPackFields(List<String> contentPackFields) {
+	public AbstractQuery<T> addContentPackFields(List<String> contentPackFields) {
 		this.contentPackFields.addAll(contentPackFields);
 		return this;
 	}
@@ -114,9 +112,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param constraints
 	 *            List of constraints
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> setConstraints(List<FieldConstraint> constraints) {
+	public AbstractQuery<T> setConstraints(List<FieldConstraint> constraints) {
 		this.constraints = constraints;
 		return this;
 	}
@@ -130,10 +128,10 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 *            Operator
 	 * @param value
 	 *            Value of the field
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 * @see FieldConstraint.Operator
 	 */
-	public QueryBuilder<T> addConstraint(String name, FieldConstraint.Operator operator, String value) {
+	public AbstractQuery<T> addConstraint(String name, FieldConstraint.Operator operator, String value) {
 		this.constraints.add(new FieldConstraint(name, operator, value));
 		return this;
 	}
@@ -143,9 +141,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * 
 	 * @param constraints
 	 *            List of FieldConstraint objects
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> addConstraints(List<FieldConstraint> constraints) {
+	public AbstractQuery<T> addConstraints(List<FieldConstraint> constraints) {
 		this.constraints.addAll(constraints);
 		return this;
 	}
@@ -154,9 +152,9 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	 * Enables to pass all the default values to Queries (otherwise default
 	 * values are ignored in URL)
 	 * 
-	 * @return QueryBuilder instance (this)
+	 * @return AbstractQuery instance (this)
 	 */
-	public QueryBuilder<T> withDefaults() {
+	public AbstractQuery<T> withDefaults() {
 		this.includeDefaults = true;
 		return this;
 	}
@@ -187,10 +185,10 @@ public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 	protected String buildUrlParameters() {
 		List<String> urlParams = new ArrayList<String>();
 
-		if (limit != QueryBuilder.DEFAULT_LIMIT || this.includeDefaults) {
+		if (limit != AbstractQuery.DEFAULT_LIMIT || this.includeDefaults) {
 			urlParams.add("limit=" + limit);
 		}
-		if (timeout != QueryBuilder.DEFAULT_TIMEOUT || this.includeDefaults) {
+		if (timeout != AbstractQuery.DEFAULT_TIMEOUT || this.includeDefaults) {
 			urlParams.add("timeout=" + timeout);
 		}
 

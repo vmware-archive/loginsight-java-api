@@ -94,7 +94,4 @@ public class AggregateResponse {
 			throw new ParseException("Unable to parse the aggregation query response.", e);
 		}
 	}
-	
-	
-
 }

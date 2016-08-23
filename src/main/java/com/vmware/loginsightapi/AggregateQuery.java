@@ -12,18 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.vmware.loginsightapi.core.AbstractQuery;
 import com.vmware.loginsightapi.core.GroupBy;
 import com.vmware.loginsightapi.core.GroupByDynamicBinWidth;
 import com.vmware.loginsightapi.core.GroupByFixedBinWidth;
+import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.OrderBy;
 
 /**
- * Builder class for creating AggregateQueries.
+ * Class for creating AggregateQueries.
  * 
  * @author gopalk
  *
  */
-public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
+public class AggregateQuery extends AbstractQuery<AggregateQuery> {
 
 	/**
 	 * Enum for aggregate function
@@ -100,10 +102,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	/**
 	 * Default constructor.
 	 */
-	public AggregateQueryBuilder() {
+	public AggregateQuery() {
 		super();
-		this.binWidth = AggregateQueryBuilder.DEFAULT_BIN_WIDTH;
-		this.aggregationFunction = AggregateQueryBuilder.DEFAULT_AGGREGATION_FUNCTION;
+		this.binWidth = AggregateQuery.DEFAULT_BIN_WIDTH;
+		this.aggregationFunction = AggregateQuery.DEFAULT_AGGREGATION_FUNCTION;
 		this.groupBy = new ArrayList<GroupBy>();
 		this.orderBys = new ArrayList<OrderBy>();
 	}
@@ -117,7 +119,7 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * @param aggregationField
 	 *            field name
 	 */
-	public AggregateQueryBuilder(AggregateQueryBuilder.AggregationFunction aggregateFunc, String aggregationField) {
+	public AggregateQuery(AggregateQuery.AggregationFunction aggregateFunc, String aggregationField) {
 		super();
 		this.aggregationFunction = aggregateFunc;
 		if (aggregateFunc == AggregationFunction.COUNT || aggregateFunc == AggregationFunction.SAMPLE) {
@@ -129,7 +131,7 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 			}
 			this.aggregationField = aggregationField;
 		}
-		this.binWidth = AggregateQueryBuilder.DEFAULT_BIN_WIDTH;
+		this.binWidth = AggregateQuery.DEFAULT_BIN_WIDTH;
 		this.groupBy = new ArrayList<GroupBy>();
 		this.orderBys = new ArrayList<OrderBy>();
 	}
@@ -140,9 +142,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param binWidth
 	 *            bin width
-	 * @return AggregateQueryBuilder (this) object
+	 * @return AggregateQuery (this) object
 	 */
-	public AggregateQueryBuilder binWidth(int binWidth) {
+	public AggregateQuery binWidth(int binWidth) {
 		this.binWidth = binWidth;
 		return this;
 	}
@@ -154,12 +156,12 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregateFunc
 	 *            Aggregate function
-	 *            {@link AggregateQueryBuilder.AggregationFunction}
+	 *            {@link AggregateQuery.AggregationFunction}
 	 * @param aggregationField
 	 *            Aggregation field
-	 * @return AggregateQueryBuilder (this) object
+	 * @return AggregateQuery (this) object
 	 */
-	public AggregateQueryBuilder aggregator(AggregationFunction aggregateFunc, String aggregationField) {
+	public AggregateQuery aggregator(AggregationFunction aggregateFunc, String aggregationField) {
 		this.aggregationFunction = aggregateFunc;
 		if ((aggregateFunc == AggregationFunction.COUNT || aggregateFunc == AggregationFunction.SAMPLE)
 				&& aggregationField != null) {
@@ -173,10 +175,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	/**
 	 * Registers the aggregate function as count
 	 * 
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
 
-	public AggregateQueryBuilder count() {
+	public AggregateQuery count() {
 		this.aggregationFunction = AggregationFunction.COUNT;
 		this.aggregationField = null;
 		return this;
@@ -185,10 +187,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	/**
 	 * Registers the aggregate function as sample
 	 * 
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
 
-	public AggregateQueryBuilder sample() {
+	public AggregateQuery sample() {
 		this.aggregationFunction = AggregationFunction.SAMPLE;
 		this.aggregationField = null;
 		return this;
@@ -199,9 +201,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose unique count to be calculated.
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder ucount(String aggregationField) {
+	public AggregateQuery ucount(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.UCOUNT;
 		this.aggregationField = aggregationField;
 		return this;
@@ -212,10 +214,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose average to be calculated.
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
 
-	public AggregateQueryBuilder average(String aggregationField) {
+	public AggregateQuery average(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.AVG;
 		this.aggregationField = aggregationField;
 		return this;
@@ -226,9 +228,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose minimum to be calculated.
-	 * @return AggregateQueryBuilder object (this)
+	 * @return AggregateQuery object (this)
 	 */
-	public AggregateQueryBuilder min(String aggregationField) {
+	public AggregateQuery min(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.MIN;
 		this.aggregationField = aggregationField;
 		return this;
@@ -239,9 +241,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose minimum to be calculated.
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder max(String aggregationField) {
+	public AggregateQuery max(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.MAX;
 		this.aggregationField = aggregationField;
 		return this;
@@ -252,10 +254,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose sum to be calculated
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
 
-	public AggregateQueryBuilder sum(String aggregationField) {
+	public AggregateQuery sum(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.SUM;
 		this.aggregationField = aggregationField;
 		return this;
@@ -266,9 +268,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose stdev to be calculated
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder stdev(String aggregationField) {
+	public AggregateQuery stdev(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.STDEV;
 		this.aggregationField = aggregationField;
 		return this;
@@ -279,9 +281,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param aggregationField
 	 *            name of the field whose variance to be calculated
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder variance(String aggregationField) {
+	public AggregateQuery variance(String aggregationField) {
 		this.aggregationFunction = AggregationFunction.VARIANCE;
 		this.aggregationField = aggregationField;
 		return this;
@@ -295,9 +297,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 *            name of the group by field
 	 * @param binWidth
 	 *            Width of the bin
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder groupByFixedBinWidth(String groupByField, int binWidth) {
+	public AggregateQuery groupByFixedBinWidth(String groupByField, int binWidth) {
 		this.groupBy.add(new GroupByFixedBinWidth(groupByField, binWidth));
 		return this;
 	}
@@ -310,9 +312,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 *            name of the group by field
 	 * @param bins
 	 *            Comma separated list of bin widths (10,20,50)
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder groupByDynamicBins(String groupByField, String bins) {
+	public AggregateQuery groupByDynamicBins(String groupByField, String bins) {
 		this.groupBy.add(new GroupByDynamicBinWidth(groupByField, bins));
 		return this;
 	}
@@ -324,9 +326,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param groupBy
 	 *            list of GroupBy objects
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder setGroupBy(List<GroupBy> groupBy) {
+	public AggregateQuery setGroupBy(List<GroupBy> groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
@@ -340,10 +342,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 *            Field name in the orderBy clause
 	 * @param orderByDirection
 	 *            Direction for orderBy clause (ASC/DESC)
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 * @see OrderBy
 	 */
-	public AggregateQueryBuilder orderBy(OrderBy.OrderByFunction orderByFunction, String orderByField,
+	public AggregateQuery orderBy(OrderBy.OrderByFunction orderByFunction, String orderByField,
 			OrderBy.Direction orderByDirection) {
 		this.orderBys.add(new OrderBy(orderByFunction, orderByField, orderByDirection));
 		return this;
@@ -356,9 +358,9 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	 * 
 	 * @param orderBy
 	 *            list of OrderBy objects
-	 * @return AggregateQueryBuilder instance (this)
+	 * @return AggregateQuery instance (this)
 	 */
-	public AggregateQueryBuilder setOrderBy(List<OrderBy> orderBy) {
+	public AggregateQuery setOrderBy(List<OrderBy> orderBy) {
 		this.orderBys = orderBy;
 		return this;
 	}
@@ -372,10 +374,10 @@ public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 	protected String buildUrlParameters() {
 		List<String> urlParams = new ArrayList<String>();
 
-		if (limit != QueryBuilder.DEFAULT_LIMIT || this.includeDefaults) {
+		if (limit != AbstractQuery.DEFAULT_LIMIT || this.includeDefaults) {
 			urlParams.add("limit=" + limit);
 		}
-		if (timeout != QueryBuilder.DEFAULT_TIMEOUT || this.includeDefaults) {
+		if (timeout != AbstractQuery.DEFAULT_TIMEOUT || this.includeDefaults) {
 			urlParams.add("timeout=" + timeout);
 		}
 		if (binWidth != DEFAULT_BIN_WIDTH || this.includeDefaults) {

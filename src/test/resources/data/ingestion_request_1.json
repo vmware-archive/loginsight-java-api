@@ -1,0 +1,17 @@
+{
+  "messages": [
+    {
+      "text": "message line 1"
+    },
+    {
+      "text": "message line 2",
+      "fields": [
+        {
+          "name": "field1",
+          "startPosition": 8,
+          "length": 4
+        }
+      ]
+    }
+  ]
+}

@@ -56,7 +56,7 @@ public class AggregateQueryBuilderTest {
 
 	@Test
 	public void testBasicAggregateQuery1() {
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(10)
 				.addConstraint("field_1", FieldConstraint.Operator.EQ, "value1").addContentPackField("test");
 		assertEquals("/api/v1/aggregated-events/field_1/EQ+value1?limit=10&content-pack-fields=test",
 				aqb.toUrlString());
@@ -64,7 +64,7 @@ public class AggregateQueryBuilderTest {
 
 	@Test
 	public void testBasicAggregateQueryWithDefaults() {
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().limit(10).withDefaults()
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(10).withDefaults()
 				.addConstraint("field_1", FieldConstraint.Operator.EQ, "value1").addContentPackField("test");
 		assertEquals(
 				"/api/v1/aggregated-events/field_1/EQ+value1?limit=10&timeout=30000&bin-width=5000&aggregation-function=COUNT&content-pack-fields=test",
@@ -73,7 +73,7 @@ public class AggregateQueryBuilderTest {
 
 	@Test
 	public void testBasicAggregateQuery2() {
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().max("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().max("field_2").limit(10)
 				.addConstraint("field_1", FieldConstraint.Operator.EQ, "value1").addContentPackField("test");
 		assertEquals(
 				"/api/v1/aggregated-events/field_1/EQ+value1?limit=10&aggregation-function=MAX&aggregation-field=field_2&content-pack-fields=test",
@@ -82,7 +82,7 @@ public class AggregateQueryBuilderTest {
 
 	@Test
 	public void testBasicAggregateQuery3() {
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().max("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().max("field_2").limit(10)
 				.timeout(1000).addConstraint("field_1", FieldConstraint.Operator.EQ, "value1")
 				.addContentPackField("test");
 		assertEquals(
@@ -93,7 +93,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testCountAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().count().limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().count().limit(10)
 				.timeout(1000).withDefaults();
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -114,7 +114,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testSampleAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().sample().binWidth(100).limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().sample().binWidth(100).limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -133,7 +133,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testMaxAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().max("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().max("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -152,7 +152,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testMaxAggregateQueryGroupByDynamic() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().max("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().max("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -173,7 +173,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testMaxAggregateQueryGroupByFixed() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().max("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().max("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -197,7 +197,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testMinAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().min("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().min("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -227,7 +227,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testSumAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().sum("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().sum("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -246,7 +246,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testStdevAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().stdev("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().stdev("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -265,7 +265,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testVarianceAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().variance("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().variance("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));
@@ -284,7 +284,7 @@ public class AggregateQueryBuilderTest {
 	@Test
 	public void testUcountAggregateQuery() {
 
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) new AggregateQueryBuilder().ucount("field_2").limit(10)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().ucount("field_2").limit(10)
 				.timeout(1000);
 		aqb.setContentPackFields(new ArrayList<String>(Arrays.asList(new String[] { "test1", "test2" })));
 		aqb.addContentPackFields(Arrays.asList(new String[] { "test3", "test5" }));

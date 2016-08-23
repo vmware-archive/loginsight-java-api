@@ -34,8 +34,10 @@ import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.AuthInfo;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
+import com.vmware.loginsightapi.util.AsyncLogInsightConnectionStrategy;
 
 /**
  * LogInsight client class providing mechanisms to connect to LogInsight, Query

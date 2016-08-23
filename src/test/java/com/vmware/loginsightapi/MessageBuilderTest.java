@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
+import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.Message;
 
 public class MessageBuilderTest {

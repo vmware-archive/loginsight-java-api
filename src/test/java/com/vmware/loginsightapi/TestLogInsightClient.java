@@ -27,6 +27,7 @@ import com.vmware.loginsightapi.core.IngestionResponse;
 import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
+import com.vmware.loginsightapi.util.AsyncLogInsightConnectionStrategy;
 
 @Ignore
 public class TestLogInsightClient {
@@ -47,9 +48,9 @@ public class TestLogInsightClient {
 	@Test
 	public void testMessageQuery() {
 		long startTime = System.nanoTime();
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
+		List<FieldConstraint> constraints = new ConstraintBuilder().eq("vclap_caseid", "1423244")
 				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
+		MessageQuery mqb = (MessageQuery) new MessageQuery().limit(100)
 				.setConstraints(constraints);
 		CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
 		MessageQueryResponse messages;
@@ -68,9 +69,9 @@ public class TestLogInsightClient {
 
 	@Test
 	public void testAggregateQuery() {
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
 				.gt("timestamp", "0").build();
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
 				.setConstraints(constraints);
 		client.aggregateQuery(aqb.toUrlString());
 	}

@@ -8,10 +8,12 @@
  */
 package com.vmware.loginsightapi;
 
+import com.vmware.loginsightapi.core.AbstractQuery;
+
 /**
- * MessageQueryBuilder extends from QueryBuilder and overwrites toUrlString.
+ * MessageQuery extends from QueryBuilder and overwrites toUrlString.
  */
-public class MessageQueryBuilder extends QueryBuilder {
+public class MessageQuery extends AbstractQuery<MessageQuery> {
 
 	/**
 	 * Relative URL path for events query

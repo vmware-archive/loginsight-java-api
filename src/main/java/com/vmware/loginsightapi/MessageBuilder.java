@@ -8,6 +8,7 @@
  */
 package com.vmware.loginsightapi;
 
+import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.Message;
 
 /**

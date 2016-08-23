@@ -110,9 +110,9 @@ public class LogInsightClientMockTest {
 
 	@Test
 	public void testMessageQuery() {
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
+		List<FieldConstraint> constraints = new ConstraintBuilder().eq("vclap_caseid", "1423244")
 				.gt("timestamp", "0").build();
-		MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100)
+		MessageQuery mqb = (MessageQuery) new MessageQuery().limit(100)
 				.setConstraints(constraints);
 
 		HttpGet getRequest = client.getHttpRequest(mqb.toUrlString(), false);
@@ -169,9 +169,9 @@ public class LogInsightClientMockTest {
 
 	@Test
 	public void testAggregateQuery() {
-		List<FieldConstraint> constraints = RequestBuilders.constraint().eq("vclap_caseid", "1423244")
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
 				.gt("timestamp", "0").build();
-		AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100)
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
 				.setConstraints(constraints);
 
 		HttpGet getRequest = client.getHttpRequest(aqb.toUrlString(), true);

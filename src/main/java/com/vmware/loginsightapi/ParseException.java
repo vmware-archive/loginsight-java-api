@@ -8,6 +8,8 @@
  */
 package com.vmware.loginsightapi;
 
+import com.vmware.loginsightapi.core.LogInsightApiException;
+
 /**
  * Generic Parse exception in LogInsight API
  *
