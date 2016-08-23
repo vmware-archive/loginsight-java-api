@@ -57,16 +57,6 @@ public class LogInsightClient implements AutoCloseable {
 	public static final String API_URL_SESSION_PATH = "/api/v1/sessions";
 
 	/**
-	 * Relative path of the event query url
-	 */
-	public static final String API_URL_EVENTS_PATH = "/api/v1/events/";
-
-	/**
-	 * Relative path of the event group query (aggregate query) url
-	 */
-	public static final String API_URL_AGGREGATED_EVENTS_PATH = "/api/v1/aggregated-events/";
-
-	/**
 	 * Relative path of the ingestion url
 	 */
 	public static final String API_URL_INGESTION = "/api/v1/messages/ingest/";
