@@ -1,7 +1,7 @@
 
 [![Gitter](https://badges.gitter.im/vmware/loginsight-java-api.svg)](https://gitter.im/vmware/loginsight-java-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Javadocs](http://javadoc.io/badge/com.vmware.loginsightapi/loginsight-java-api.svg)](http://javadoc.io/doc/com.vmware.loginsightapi/loginsight-java-api)
-[![Build Status](https://ci.vmware.run/api/badges/vmware/loginsight-java-api/status.svg)](https://ci.vmware.run/vmware/loginsight-java-api)
+[![Coverage Status](https://coveralls.io/repos/github/vmware/loginsight-java-api/badge.svg?branch=master)](https://coveralls.io/github/vmware/loginsight-java-api?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/vmware/loginsight-java-api/badge.svg)](https://coveralls.io/github/vmware/loginsight-java-api)
 [//]: [![javadoc](https://img.shields.io/badge/view-javadoc-lightgrey.svg)](https://vmware.github.io/loginsight-java-api/javadoc/)
 # loginsight-java-api
