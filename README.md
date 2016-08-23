@@ -1,4 +1,5 @@
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.vmware.loginsightapi/loginsight-java-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.vmware.loginsightapi/loginsight-java-api)
 [![Gitter](https://badges.gitter.im/vmware/loginsight-java-api.svg)](https://gitter.im/vmware/loginsight-java-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Javadocs](http://javadoc.io/badge/com.vmware.loginsightapi/loginsight-java-api.svg)](http://javadoc.io/doc/com.vmware.loginsightapi/loginsight-java-api)
 [![Build Status](https://ci.vmware.run/api/badges/vmware/loginsight-java-api/status.svg)](https://ci.vmware.run/vmware/loginsight-java-api)
