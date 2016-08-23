@@ -8,7 +8,10 @@
  */
 package com.vmware.loginsightapi.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.vmware.loginsightapi.LogInsightApiException;
 
 /**
  * Class representing individual field in the LogInsight messages.
@@ -17,15 +20,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Field {
 	private String name;
 	private String content;
-	private String startPosition;
-	private String length;
-
-	/**
-	 * Default constructor
-	 */
-	public Field() {
-
-	}
+	private int startPosition;
+	private int length;
 
 	/**
 	 * Initialize the Field object with name and content
@@ -35,7 +31,8 @@ public class Field {
 	 * @param content
 	 *            content/value of the field.
 	 */
-	public Field(String name, String content) {
+	@JsonCreator
+	public Field(@JsonProperty("name") String name, @JsonProperty("content") String content) {
 		this.name = name;
 		this.content = content;
 	}
@@ -51,29 +48,10 @@ public class Field {
 	 * @param length
 	 *            length of the field content
 	 */
-	public Field(String name, String startPosition, String length) {
+	public Field(@JsonProperty("name") String name, @JsonProperty("startPosition") int startPosition,
+			@JsonProperty("length") int length) {
 		this.name = name;
-		this.startPosition = startPosition;
-		this.length = length;
-	}
-
-	/**
-	 * Initializes the Field object with all the attributes
-	 * 
-	 * @param name
-	 *            name of the field
-	 * @param content
-	 *            content of the field
-	 * @param startPosition
-	 *            start position in the message text (servers as offset for
-	 *            picking the field content)
-	 * @param length
-	 *            length of the field content
-	 */
-	public Field(String name, String content, String startPosition, String length) {
-		this.name = name;
-		this.content = content;
-		this.startPosition = startPosition;
+		this.setStartPosition(startPosition);
 		this.length = length;
 	}
 
@@ -120,7 +98,7 @@ public class Field {
 	 * 
 	 * @return the startPosition
 	 */
-	public String getStartPosition() {
+	public int getStartPosition() {
 		return startPosition;
 	}
 
@@ -130,7 +108,9 @@ public class Field {
 	 * @param startPosition
 	 *            the startPosition to set
 	 */
-	public void setStartPosition(String startPosition) {
+	public void setStartPosition(int startPosition) {
+		if (startPosition < 0)
+			throw new LogInsightApiException("Invalid startPosition " + startPosition);
 		this.startPosition = startPosition;
 	}
 
@@ -139,7 +119,7 @@ public class Field {
 	 * 
 	 * @return the length
 	 */
-	public String getLength() {
+	public int getLength() {
 		return length;
 	}
 
@@ -149,7 +129,7 @@ public class Field {
 	 * @param length
 	 *            the length to set
 	 */
-	public void setLength(String length) {
+	public void setLength(int length) {
 		this.length = length;
 	}
 }

@@ -45,6 +45,7 @@ import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
 

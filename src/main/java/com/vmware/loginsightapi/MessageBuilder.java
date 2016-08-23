@@ -12,6 +12,38 @@ import com.vmware.loginsightapi.core.Message;
 
 /**
  * Builder class for Message
+ * <br><br><b> Sample Usages: </b> <br>
+ * Sample message with message text.<br>
+ * {@code
+ * new MessageBuilder("System failed")
+ * } <br> <br>
+ * 
+ * Sample message with message text with field and its value.<br>
+ * {@code
+ * new MessageBuilder("System failed").field("field_1", "value_1")
+ * } <br><br>
+ *
+ * Sample message with message text with field and its startPosition and length.<br>
+ * {@code
+ * new MessageBuilder("System failed").field("field_1", 7, 6)
+ * } <br><br>
+ * 
+ * Sample message with message text with field and timestamp.<br>
+ * {@code
+ * new MessageBuilder("System failed").timestamp(1471788597753)
+ * } <br><br>
+ * 
+ * Sample message with message text with field and current time as message timestamp.<br>
+ * {@code
+ * new MessageBuilder("System failed").currentTimestamp()
+ * } <br><br>
+ * 
+ * Builds message with empty message text. <br>
+ * {@code
+ * new MessageBuilder()
+ * } <br><br>
+ * 
+ * 
  */
 public class MessageBuilder {
 
@@ -43,7 +75,7 @@ public class MessageBuilder {
 	 *            content of the field
 	 * @return MessageBuilder instance (this)
 	 */
-	public MessageBuilder withField(String name, String content) {
+	public MessageBuilder field(String name, String content) {
 		message.addField(name, content);
 		return this;
 	}
@@ -59,7 +91,7 @@ public class MessageBuilder {
 	 *            length of the field value in the text
 	 * @return MessageBuilder instance (this)
 	 */
-	public MessageBuilder withField(String name, String startPosition, String length) {
+	public MessageBuilder field(String name, int startPosition, int length) {
 		message.addField(name, startPosition, length);
 		return this;
 	}
@@ -70,7 +102,7 @@ public class MessageBuilder {
 	 * @param timeStamp timeStamp of the message
 	 * @return MessageBuilder instance (object)
 	 */
-	public MessageBuilder withTimestamp(long timeStamp) {
+	public MessageBuilder timestamp(long timeStamp) {
 		message.setTimestamp(timeStamp);
 		return this;
 	}
@@ -80,7 +112,7 @@ public class MessageBuilder {
 	 * 
 	 * @return MessageBuilder instance (this)
 	 */
-	public MessageBuilder withCurrentTimestamp() {
+	public MessageBuilder currentTimestamp() {
 		message.setTimestamp();
 		return this;
 	}
@@ -91,7 +123,11 @@ public class MessageBuilder {
 	 * @return Message object
 	 */
 	public Message build() {
-		return this.message;
+		if (this.message.checkIsValid()) {
+			return this.message;
+		} else {
+			throw new LogInsightApiException("Invalid message structure.");
+		}
 	}
 
 }

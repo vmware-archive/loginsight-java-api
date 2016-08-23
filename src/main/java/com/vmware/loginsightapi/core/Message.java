@@ -24,12 +24,10 @@ public class Message {
 	private String text;
 	private Long timestamp;
 	private List<Field> fields;
-
 	/**
 	 * Default constructor
 	 */
 	public Message() {
-		// timestamp = DateTime.now().getMillis();
 		this.fields = new ArrayList<Field>();
 	}
 
@@ -118,7 +116,6 @@ public class Message {
 	 */
 	public void setTimestamp() {
 		this.timestamp = DateTime.now().getMillis();
-		;
 	}
 
 	/**
@@ -138,16 +135,6 @@ public class Message {
 	 */
 	public void setFields(List<Field> fields) {
 		this.fields = fields;
-	}
-
-	/**
-	 * Add a field to existing fields in the message
-	 * 
-	 * @param field
-	 *            Field Object
-	 */
-	public void addField(Field field) {
-		this.fields.add(field);
 	}
 
 	/**
@@ -175,40 +162,44 @@ public class Message {
 	 * @param length
 	 *            length of the new field.
 	 */
-	public void addField(String name, String startPosition, String length) {
+	public void addField(String name, int startPosition, int length) {
 		this.fields.add(new Field(name, startPosition, length));
 	}
 
 	/**
-	 * Add a field by all individual parameters
-	 * 
-	 * @param name
-	 *            name of the field
-	 * @param content
-	 *            content of the field
-	 * @param startPosition
-	 *            startPosition of the field content in the message
-	 * @param length
-	 *            length of the field content in the message.
-	 */
-	public void addField(String name, String content, String startPosition, String length) {
-		this.fields.add(new Field(name, content, startPosition, length));
-	}
-
-	/**
 	 * Checks whether Message object is empty <br>
-	 * Returns true if  <br>
+	 * Returns true if <br>
 	 * {@code
-	 * null == this.text || StringUtils.isEmpty(this.text) || this.fields.size() == 0
+	 * ((null == this.text || StringUtils.isEmpty(this.text)) && this.fields.size() == 0)
 	 * }
 	 * 
 	 * @return true of false
 	 */
 	public boolean checkIsEmpty() {
-		if (null == this.text || StringUtils.isEmpty(this.text) || this.fields.size() == 0) {
+		if ((null == this.text || StringUtils.isEmpty(this.text)) && this.fields.size() == 0) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Checks whether message is a valid loginsight ingestion message object.
+	 * 
+	 * @return true or false
+	 */
+	public boolean checkIsValid() {
+		boolean valid = true;
+		if (this.checkIsEmpty()) {
+			return true;
+		}
+		if (null != this.text && !StringUtils.isEmpty(this.text)) {
+			for (Field field : fields) {
+				if (field.getStartPosition() + field.getLength() > this.text.length()) {
+					return false;
+				}
+			}
+		}
+		return valid;
 	}
 }

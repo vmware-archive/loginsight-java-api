@@ -25,7 +25,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-//import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
@@ -35,9 +34,8 @@ import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.AuthInfo;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
-import com.vmware.loginsightapi.core.LogInsightApiError;
+import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
-import com.vmware.loginsightapi.util.AsyncCallback;
 
 /**
  * LogInsight client class providing mechanisms to connect to LogInsight, Query
@@ -246,7 +244,7 @@ public class LogInsightClient implements AutoCloseable {
 
 		String body = String.format("{\"username\":\"%s\",\"password\":\"%s\"}", config.getUser(),
 				config.getPassword());
-		System.out.println("auth body "+ body);
+		System.out.println("auth body " + body);
 		HttpPost httpPost = new HttpPost(sessionUrl());
 		httpPost.addHeader("Accept", "application/json");
 		httpPost.addHeader("Content-type", "application/json");
@@ -287,7 +285,8 @@ public class LogInsightClient implements AutoCloseable {
 	}
 
 	/**
-	 * Performs message query. Returns a CompletableFuture
+	 * Performs message query. Returns a CompletableFuture for
+	 * MessageQueryResponse
 	 * 
 	 * @param apiUrl
 	 *            relative url of the API
@@ -313,11 +312,7 @@ public class LogInsightClient implements AutoCloseable {
 					} catch (IOException e) {
 						e.printStackTrace();
 						completableFuture.completeExceptionally(e);
-						// callback.completed(null, new
-						// LogInsightApiError("Unable to process the query
-						// response", e));
 					}
-
 				}
 
 				@Override
@@ -331,7 +326,6 @@ public class LogInsightClient implements AutoCloseable {
 				}
 
 			});
-			logger.info("Finished completely!!!");
 		} catch (Exception ie) {
 			completableFuture.completeExceptionally(new LogInsightApiException("Message query failed", ie));
 		}
@@ -344,7 +338,7 @@ public class LogInsightClient implements AutoCloseable {
 	 * @param apiUrl
 	 *            relative url of the API
 	 * @return AggregateResponse CompletableFuture
-	 *         
+	 * 
 	 */
 	public CompletableFuture<AggregateResponse> aggregateQuery(String apiUrl) {
 		HttpGet request = null;

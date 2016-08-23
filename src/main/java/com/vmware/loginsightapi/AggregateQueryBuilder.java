@@ -18,6 +18,8 @@ import com.vmware.loginsightapi.core.GroupByFixedBinWidth;
 import com.vmware.loginsightapi.core.OrderBy;
 
 /**
+ * Builder class for creating AggregateQueries.
+ * 
  * @author gopalk
  *
  */
@@ -130,7 +132,9 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	 * @param aggregationField
 	 *            Aggregation field
 	 * @return AggregateQueryBuilder (this) object
+	 * @deprecated
 	 */
+	@Deprecated
 	public AggregateQueryBuilder aggregator(AggregationFunction aggregateFunc, String aggregationField) {
 		this.aggregationFunction = aggregateFunc;
 		if ((aggregateFunc == AggregationFunction.COUNT || aggregateFunc == AggregationFunction.SAMPLE)
