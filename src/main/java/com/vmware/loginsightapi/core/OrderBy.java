@@ -84,7 +84,7 @@ public class OrderBy {
 		DESC
 	}
 
-	private final String orderByFunction;
+	private final OrderByFunction orderByFunction;
 	private final String orderByField;
 	private final Direction orderByDirection;
 
@@ -99,7 +99,7 @@ public class OrderBy {
 	 * @param orderByDirection
 	 *            order by direction
 	 */
-	public OrderBy(String orderByFunction, String orderByField, Direction orderByDirection) {
+	public OrderBy(OrderBy.OrderByFunction orderByFunction, String orderByField, Direction orderByDirection) {
 		this.orderByFunction = orderByFunction;
 		this.orderByField = orderByField;
 		this.orderByDirection = orderByDirection;
@@ -110,7 +110,7 @@ public class OrderBy {
 	 * 
 	 * @return order by function
 	 */
-	public String getOrderByFunction() {
+	public OrderByFunction getOrderByFunction() {
 		return this.orderByFunction;
 	}
 

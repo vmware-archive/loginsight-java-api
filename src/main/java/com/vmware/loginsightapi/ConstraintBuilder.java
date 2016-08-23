@@ -238,6 +238,21 @@ public class ConstraintBuilder {
 	}
 
 	/**
+	 * Build a field constraint with <b>exists</b> operator <br>
+	 * This constraint does not need any value<br>
+	 * <br>
+	 * <b>{@code field EXISTS} </b>
+	 * 
+	 * @param field
+	 *            name of the field
+	 * @return ConstraintBuilder instance (this)
+	 */
+	public ConstraintBuilder exists(String field) {
+		this.constraints.add(FieldConstraint.exists(field));
+		return this;
+	}
+	
+	/**
 	 * Returns the list of constructs as an arrayList.
 	 * 
 	 * @return the list of field constraints

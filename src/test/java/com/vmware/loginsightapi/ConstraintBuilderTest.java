@@ -26,11 +26,12 @@ public class ConstraintBuilderTest {
 		cb.notHas("text_field_4", "value_4");
 		cb.matchesRegex("text_field_5", "value_5");
 		cb.notMatchesRegex("text_field_6", "value_6");
-		// cb.exits("exists_field");
+		cb.exists("field_exits");
 		assertEquals("num_field_1/EQ+10/num_field_2/NE+20/" + "num_field_3/GT+30/num_field_4/GE+40/num_field_5/"
 				+ "LT+50/num_field_6/LE+60/" + "text_field_1/CONTAINS+value_1/text_field_2/NOT_CONTAINS+value_2/"
 				+ "text_field_3/HAS+value_3/text_field_4/NOT_HAS+value_4/"
-				+ "text_field_5/MATCHES_REGEX+value_5/text_field_6/NOT_MATCHES_REGEX+value_6", cb.buildPathSegment());
+				+ "text_field_5/MATCHES_REGEX+value_5/text_field_6/NOT_MATCHES_REGEX+value_6/"
+				+ "field_exits/EXISTS", cb.buildPathSegment());
 	}
 
 	@Test

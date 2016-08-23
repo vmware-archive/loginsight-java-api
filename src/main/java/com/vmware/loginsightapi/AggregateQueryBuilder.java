@@ -23,7 +23,7 @@ import com.vmware.loginsightapi.core.OrderBy;
  * @author gopalk
  *
  */
-public class AggregateQueryBuilder extends QueryBuilder {
+public class AggregateQueryBuilder extends QueryBuilder<AggregateQueryBuilder> {
 
 	/**
 	 * Enum for aggregate function
@@ -109,6 +109,32 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	}
 
 	/**
+	 * Constructor with aggregation function and field <br>
+	 * aggregationField is not supported for COUNT and SAMPLE
+	 * 
+	 * @param aggregateFunc
+	 *            aggregation function
+	 * @param aggregationField
+	 *            field name
+	 */
+	public AggregateQueryBuilder(AggregateQueryBuilder.AggregationFunction aggregateFunc, String aggregationField) {
+		super();
+		this.aggregationFunction = aggregateFunc;
+		if (aggregateFunc == AggregationFunction.COUNT || aggregateFunc == AggregationFunction.SAMPLE) {
+			// warning: aggregationField is not supported for COUNT and SAMPLE
+			this.aggregationField = null;
+		} else {
+			if (null == aggregationField) {
+				throw new LogInsightApiException("Aggregation field is mandatory for " + aggregateFunc + " function");
+			}
+			this.aggregationField = aggregationField;
+		}
+		this.binWidth = AggregateQueryBuilder.DEFAULT_BIN_WIDTH;
+		this.groupBy = new ArrayList<GroupBy>();
+		this.orderBys = new ArrayList<OrderBy>();
+	}
+
+	/**
 	 * The time-span of time range bins, in milliseconds. A special "all"
 	 * bin-width will effectively group by over the entire time range.
 	 * 
@@ -132,9 +158,7 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	 * @param aggregationField
 	 *            Aggregation field
 	 * @return AggregateQueryBuilder (this) object
-	 * @deprecated
 	 */
-	@Deprecated
 	public AggregateQueryBuilder aggregator(AggregationFunction aggregateFunc, String aggregationField) {
 		this.aggregationFunction = aggregateFunc;
 		if ((aggregateFunc == AggregationFunction.COUNT || aggregateFunc == AggregationFunction.SAMPLE)
@@ -267,8 +291,10 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	 * GroupBy bins are configured to fixed bin width. Group by field and bin
 	 * width must be supplied.
 	 * 
-	 * @param groupByField name of the group by field
-	 * @param binWidth     Width of the bin
+	 * @param groupByField
+	 *            name of the group by field
+	 * @param binWidth
+	 *            Width of the bin
 	 * @return AggregateQueryBuilder instance (this)
 	 */
 	public AggregateQueryBuilder groupByFixedBinWidth(String groupByField, int binWidth) {
@@ -317,7 +343,7 @@ public class AggregateQueryBuilder extends QueryBuilder {
 	 * @return AggregateQueryBuilder instance (this)
 	 * @see OrderBy
 	 */
-	public AggregateQueryBuilder orderBy(String orderByFunction, String orderByField,
+	public AggregateQueryBuilder orderBy(OrderBy.OrderByFunction orderByFunction, String orderByField,
 			OrderBy.Direction orderByDirection) {
 		this.orderBys.add(new OrderBy(orderByFunction, orderByField, orderByDirection));
 		return this;

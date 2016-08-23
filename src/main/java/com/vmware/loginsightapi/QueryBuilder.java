@@ -18,7 +18,7 @@ import com.vmware.loginsightapi.core.FieldConstraint;
 /**
  * Abstract class for QueryBuilder.
  */
-public abstract class QueryBuilder {
+public abstract class QueryBuilder<T extends QueryBuilder<T>> {
 
 	/**
 	 * Default max number of messages in query response
@@ -54,7 +54,7 @@ public abstract class QueryBuilder {
 	 *            maximum number of events
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder limit(int limit) {
+	public QueryBuilder<T> limit(int limit) {
 		this.limit = limit;
 		return this;
 	}
@@ -66,7 +66,7 @@ public abstract class QueryBuilder {
 	 *            Query execution timeout
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder timeout(int timeout) {
+	public QueryBuilder<T> timeout(int timeout) {
 		this.timeout = timeout;
 		return this;
 	}
@@ -79,7 +79,7 @@ public abstract class QueryBuilder {
 	 *            List of content pack fields
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder setContentPackFields(List<String> contentPackFields) {
+	public QueryBuilder<T> setContentPackFields(List<String> contentPackFields) {
 		this.contentPackFields = contentPackFields;
 		return this;
 	}
@@ -92,7 +92,7 @@ public abstract class QueryBuilder {
 	 *            loginsight
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder addContentPackField(String contentPackField) {
+	public QueryBuilder<T> addContentPackField(String contentPackField) {
 		this.contentPackFields.add(contentPackField);
 		return this;
 	}
@@ -104,7 +104,7 @@ public abstract class QueryBuilder {
 	 *            list of content pack fields
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder addContentPackFields(List<String> contentPackFields) {
+	public QueryBuilder<T> addContentPackFields(List<String> contentPackFields) {
 		this.contentPackFields.addAll(contentPackFields);
 		return this;
 	}
@@ -116,7 +116,7 @@ public abstract class QueryBuilder {
 	 *            List of constraints
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder setConstraints(List<FieldConstraint> constraints) {
+	public QueryBuilder<T> setConstraints(List<FieldConstraint> constraints) {
 		this.constraints = constraints;
 		return this;
 	}
@@ -133,7 +133,7 @@ public abstract class QueryBuilder {
 	 * @return QueryBuilder instance (this)
 	 * @see FieldConstraint.Operator
 	 */
-	public QueryBuilder addConstraint(String name, FieldConstraint.Operator operator, String value) {
+	public QueryBuilder<T> addConstraint(String name, FieldConstraint.Operator operator, String value) {
 		this.constraints.add(new FieldConstraint(name, operator, value));
 		return this;
 	}
@@ -145,7 +145,7 @@ public abstract class QueryBuilder {
 	 *            List of FieldConstraint objects
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder addConstraints(List<FieldConstraint> constraints) {
+	public QueryBuilder<T> addConstraints(List<FieldConstraint> constraints) {
 		this.constraints.addAll(constraints);
 		return this;
 	}
@@ -156,7 +156,7 @@ public abstract class QueryBuilder {
 	 * 
 	 * @return QueryBuilder instance (this)
 	 */
-	public QueryBuilder withDefaults() {
+	public QueryBuilder<T> withDefaults() {
 		this.includeDefaults = true;
 		return this;
 	}
