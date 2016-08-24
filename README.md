@@ -20,6 +20,7 @@ Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on an
 
 ## Usage
 
+### Getting the jar
 Functionality of this package is contained in Java package com.vmware.loginsightapi.
 To use the package, you need to use following Maven dependency:
 
@@ -37,24 +38,6 @@ In case of gradle project please use the following
 compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version: '0.1.0'
 ~~~
 
-
-## Build from source
-
-### Prerequisites
-
-* Java 8 JDK installed and set your JAVA_HOME to home of Java8 JDK
-* vRealize LogInsight 3.3 onwards
-
- 
-### Build & Run
-
-~~~bash
-$ ./gradlew clean build
-~~~
-
-
-## Documentation
-
 ### Connecting to LogInsight
 
 ~~~java
@@ -65,8 +48,11 @@ LogInsightClient client = new LogInsightClient("host-name", "username", "passwor
 
 ~~~java
 
-IngestionRequest request = new IngestionRequestBuilder().message(new Message("message line 1"))
-	.message(new MessageBuilder("message line 2").field("field1", "content 1").build()).build();
+IngestionRequest request = new IngestionRequestBuilder()
+	.message(new Message("message line 1"))
+	.message(new MessageBuilder("message line 2")
+	.field("field1", "content 1").build())
+	.build();
 CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
 
 ~~~
@@ -90,6 +76,22 @@ AggregateQuery aqb = (AggregateQuery) new AggregateQuery()
 	.addConstraint("field_1", FieldConstraint.Operator.EQ,"value1")
 	.addContentPackField("test");
 CompletableFuture<AggregateQueryResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
+~~~
+
+### API
+
+## Build from source
+
+### Prerequisites
+
+* Java 8 JDK installed and set your JAVA_HOME to home of Java8 JDK
+* vRealize LogInsight 3.3 onwards
+
+ 
+### Build & Run
+
+~~~bash
+$ ./gradlew clean build
 ~~~
 
 
