@@ -20,17 +20,38 @@ You can access the **javadoc** for this libary [here](https://vmware.github.io/l
 
 Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
 
-## Try it out
+## Usage
+
+Functionality of this package is contained in Java package com.vmware.loginsightapi.
+To use the package, you need to use following Maven dependency:
+
+~~~xml
+<dependency>
+    <groupId>com.vmware.loginsightapi</groupId>
+    <artifactId>loginsight-java-api</artifactId>
+    <version>0.1.0</version>
+</dependency>
+~~~
+
+In case of gradle project please use the following
+
+~~~groovy
+compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version: '0.1.0'
+~~~
+
+
+## Build from source
 
 ### Prerequisites
 
 * Java 8 JDK installed and set your JAVA_HOME to home of Java8 JDK
 * vRealize LogInsight 3.3 onwards
+
  
 ### Build & Run
 
 ~~~bash
-$ ./gradlew build
+$ ./gradlew clean build
 ~~~
 
 
@@ -45,79 +66,29 @@ LogInsightClient client = new LogInsightClient("host-name", "username", "passwor
 
 ~~~java
 
-IngestionRequest request = new IngestionRequestBuilder()
-		.withMessage(new Message("message line 1"))
-                .withMessage(new MessageBuilder("message line 2").withField("field1", "content 1").build())
-                .build();
-IngestionResponse response = client.ingest(request);
+IngestionRequest request = new IngestionRequestBuilder().message(new Message("message line 1"))
+	.message(new MessageBuilder("message line 2").field("field1", "content 1").build()).build();
+	List<Message> messages = request.getMessages();
+CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+
 ~~~
 
-### Message Queries
-
-#### Synchronous Query
+### Event Queries
 
 ~~~java
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
-String urlString = RequestBuilders.messageQuery().limit(100).setConstraints(constraints).toUrlString();
-MessageQueryResponse messages = client.messageQuery(urlString);
-Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
+MessageQuery mqb = (MessageQuery) new MessageQuery().limit(10).addConstraint("field_1", FieldConstraint.Operator.EQ, "value1").addContentPackField("test");
+CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
 ~~~
 
-#### Asynchronous Query with callbacks
-
-~~~java
-final CountDownLatch latch = new CountDownLatch(1);
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
-MessageQueryBuilder mqb = (MessageQueryBuilder) RequestBuilders.messageQuery().limit(100).setConstraints(constraints);
-client.messageQuery(mqb.toUrlString(), (MessageQueryResponse response, LogInsightApiError error) -> {
-	if (error.isError()) {
-		// Handle error
-	} else {
-		// Handle response
-	}
-	latch.countDown(); //release the latch
-});
-try {
-	latch.await(); // wait for completion of the callback
-} catch (InterruptedException e1) {
-	e1.printStackTrace();
-}
-~~~
 
 ### Aggregation Queries
 
 Default aggregation function is COUNT as defined by LogInsight API.
 
-#### Synchronous Query
-
 ~~~java
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
-AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
-client.aggregateQuery(aqb.toUrlString());
+AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(10).addConstraint("field_1", FieldConstraint.Operator.EQ,"value1").addContentPackField("test");
+CompletableFuture<AggregateQueryResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
 ~~~
-
-#### Asynchronous Query
-
-~~~java
-final CountDownLatch latch = new CountDownLatch(1);
-List<FieldConstraint> constraints = RequestBuilders.constraint().eq("field", "value").gt("timestamp", "0").build();
-AggregateQueryBuilder aqb = (AggregateQueryBuilder) RequestBuilders.aggreateQuery().limit(100).setConstraints(constraints);
-client.aggregateQuery(aqb.toUrlString(), (AggregateResponse response, LogInsightApiError error) -> {
-	if (error.isError()) {
-		// Handle Response
-	} else {
-		// Handle Error
- 	}
- 	latch.countDown(); // release the latch
-});
-try {
-	latch.await();  // wait for the completion of the callback
-} catch (InterruptedException e1) {
-	e1.printStackTrace();
-}
-~~~
-
-
 
 
 ## Contributing
