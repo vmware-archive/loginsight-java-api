@@ -7,13 +7,11 @@
 [//]: [![javadoc](https://img.shields.io/badge/view-javadoc-lightgrey.svg)](https://vmware.github.io/loginsight-java-api/javadoc/)
 # loginsight-java-api
 
-Please do not use this API in production as it is still in **beta phase**.
+VMware vRealize LogInsight provides a REST API. For more information on REST API, refer to Steve Flanders blog post [Log Insight 3.3: Query API](http://blogs.vmware.com/management/2016/05/log-insight-3-3-query-api.html)
 
-## Overview
-
-LogInsight Java API provides a fluent API to interact with VMware vRealize LogInsight 
+We are providing an easy to use java wrapper to interact with VMware vRealize LogInsight. This loginsight-java-api currently supports 
 * message queries
-* aggregate queries
+* aggregate queries and
 * ingesion
 
 Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
