@@ -27,19 +27,17 @@ To use the package, you need to use following Maven dependency:
 <dependency>
     <groupId>com.vmware.loginsightapi</groupId>
     <artifactId>loginsight-java-api</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ~~~
 
 In case of gradle project please use the following
 
 ~~~groovy
-compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version: '0.1.0'
+compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version: '0.1.1'
 ~~~
 
 ### API
-
-**Note:** Following code snippets work only with latest code in master branch and do not work with 0.1.0 release. So, clone the repository and perform a local build using the instructions in "Build & Run" section. The new version 0.1.1 will be available in maven central on 25-Aug.
 
 ####1. Connecting to LogInsight
 
