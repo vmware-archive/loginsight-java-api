@@ -39,7 +39,8 @@ compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version:
 
 ### API
 
-**Note:** This API works only with latest code in master branch and do not work with 0.1.0 release. We are planning to release a new version 0.1.1 by 25-Aug
+**Note:** Following code snippets work only with latest code in master branch and do not work with 0.1.0 release. So, clone the repository and perform a local build using the instructions in "Build & Run" section. The new version 0.1.1 will be available in maven central on 25-Aug.
+
 ####1. Connecting to LogInsight
 
 ~~~java
