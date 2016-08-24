@@ -15,8 +15,6 @@ LogInsight Java API provides a fluent API to interact with VMware vRealize LogIn
 * message queries
 * aggregate queries
 * ingesion
- 
-You can access the **javadoc** for this libary [here](https://vmware.github.io/loginsight-java-api/javadoc/)
 
 Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on any issues on using this API.
 
@@ -58,6 +56,7 @@ $ ./gradlew clean build
 ## Documentation
 
 ### Connecting to LogInsight
+
 ~~~java
 LogInsightClient client = new LogInsightClient("host-name", "username", "password");
 ~~~
@@ -68,7 +67,6 @@ LogInsightClient client = new LogInsightClient("host-name", "username", "passwor
 
 IngestionRequest request = new IngestionRequestBuilder().message(new Message("message line 1"))
 	.message(new MessageBuilder("message line 2").field("field1", "content 1").build()).build();
-	List<Message> messages = request.getMessages();
 CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
 
 ~~~
@@ -76,7 +74,9 @@ CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
 ### Event Queries
 
 ~~~java
-MessageQuery mqb = (MessageQuery) new MessageQuery().limit(10).addConstraint("field_1", FieldConstraint.Operator.EQ, "value1").addContentPackField("test");
+MessageQuery mqb = (MessageQuery) new MessageQuery()
+	.addConstraint("field_1", FieldConstraint.Operator.EQ, "value1")
+	.addContentPackField("test");
 CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
 ~~~
 
@@ -86,7 +86,9 @@ CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb
 Default aggregation function is COUNT as defined by LogInsight API.
 
 ~~~java
-AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(10).addConstraint("field_1", FieldConstraint.Operator.EQ,"value1").addContentPackField("test");
+AggregateQuery aqb = (AggregateQuery) new AggregateQuery()
+	.addConstraint("field_1", FieldConstraint.Operator.EQ,"value1")
+	.addContentPackField("test");
 CompletableFuture<AggregateQueryResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
 ~~~
 
