@@ -38,13 +38,15 @@ In case of gradle project please use the following
 compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version: '0.1.0'
 ~~~
 
-### Connecting to LogInsight
+### API
+
+####1. Connecting to LogInsight
 
 ~~~java
 LogInsightClient client = new LogInsightClient("host-name", "username", "password");
 ~~~
 
-### Ingestion of messages to LogInsight
+####2. Ingestion of messages to LogInsight
 
 ~~~java
 
@@ -57,7 +59,7 @@ CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
 
 ~~~
 
-### Event Queries
+####3. Event Queries
 
 ~~~java
 MessageQuery mqb = (MessageQuery) new MessageQuery()
@@ -67,7 +69,7 @@ CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb
 ~~~
 
 
-### Aggregation Queries
+####4. Aggregation Queries
 
 Default aggregation function is COUNT as defined by LogInsight API.
 
@@ -78,7 +80,6 @@ AggregateQuery aqb = (AggregateQuery) new AggregateQuery()
 CompletableFuture<AggregateQueryResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
 ~~~
 
-### API
 
 ## Build from source
 
