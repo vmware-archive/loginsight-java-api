@@ -22,6 +22,8 @@ public class Field {
 	private int startPosition;
 	private int length;
 
+	public Field() {
+	}
 	/**
 	 * Initialize the Field object with name and content
 	 * 
@@ -30,8 +32,7 @@ public class Field {
 	 * @param content
 	 *            content/value of the field.
 	 */
-	@JsonCreator
-	public Field(@JsonProperty("name") String name, @JsonProperty("content") String content) {
+	public Field(String name, String content) {
 		this.name = name;
 		this.content = content;
 	}
@@ -47,8 +48,7 @@ public class Field {
 	 * @param length
 	 *            length of the field content
 	 */
-	public Field(@JsonProperty("name") String name, @JsonProperty("startPosition") int startPosition,
-			@JsonProperty("length") int length) {
+	public Field(String name, int startPosition, int length) {
 		this.name = name;
 		this.setStartPosition(startPosition);
 		this.length = length;
@@ -69,7 +69,7 @@ public class Field {
 	 * @param name
 	 *            the name to set
 	 */
-	public void setName(String name) {
+	public void setName(String name ) {
 		this.name = name;
 	}
 

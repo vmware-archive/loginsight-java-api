@@ -10,6 +10,7 @@ package com.vmware.loginsightapi;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.concurrent.ConcurrentUtils;
@@ -35,11 +35,12 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,22 +148,27 @@ public class LogInsightClientMockTest {
 		}
 
 		HttpResponse response = mock(HttpResponse.class);
-		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
-		when(asyncHttpClient.execute(any(HttpUriRequest.class), any(FutureCallback.class))).thenReturn(future, null);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
-		StatusLine statusLine = mock(StatusLine.class);
-		when(response.getStatusLine()).thenReturn(statusLine);
-		when(statusLine.getStatusCode()).thenReturn(200);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+		
 
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_QUERY_RESPONSE, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);
 			CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
 				
-//			MessageQueryResponse messages = responseFuture.get(0, TimeUnit.MILLISECONDS);
-			responseFuture.complete(new MessageQueryResponse());
-//			Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
+			MessageQueryResponse messages = responseFuture.get(0, TimeUnit.MILLISECONDS);
+			Assert.assertTrue("Invalid number of messages", messages.getEvents().size() <= 100);
 		} catch (Exception e) {
 			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
 			Assert.assertTrue(false);
@@ -205,25 +211,28 @@ public class LogInsightClientMockTest {
 		}
 
 		HttpResponse response = mock(HttpResponse.class);
-		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
-		when(asyncHttpClient.execute(any(HttpUriRequest.class), any(FutureCallback.class))).thenReturn(future, null);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
-		StatusLine statusLine = mock(StatusLine.class);
-		when(response.getStatusLine()).thenReturn(statusLine);
-		when(statusLine.getStatusCode()).thenReturn(200);
+
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
 
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_AGGREGATE_QUERY_RESPONSE, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);
 			CompletableFuture<AggregateResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
 			
-//				AggregateResponse message = responseFuture.get(0, TimeUnit.MILLISECONDS);
-			responseFuture.complete(new AggregateResponse());
+			AggregateResponse message = responseFuture.get(0, TimeUnit.MILLISECONDS);
 			
-			
-//			Assert.assertTrue("Invalid number of bins", message.getBins().size() <= 100);
-//			Assert.assertTrue("Invalid duration in the response", message.getDuration() > 0);
+			Assert.assertTrue("Invalid number of bins", message.getBins().size() <= 100);
+			Assert.assertTrue("Invalid duration in the response", message.getDuration() > 0);
 		} catch (Exception e) {
 			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
 			Assert.assertTrue(false);
@@ -260,13 +269,20 @@ public class LogInsightClientMockTest {
 		}
 
 		HttpResponse response = mock(HttpResponse.class);
-		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
-		when(asyncHttpClient.execute(any(HttpUriRequest.class), any(FutureCallback.class))).thenReturn(future, null);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
 		StatusLine statusLine = mock(StatusLine.class);
 		when(response.getStatusLine()).thenReturn(statusLine);
 		when(statusLine.getStatusCode()).thenReturn(200);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
 
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_RESPONSE_FOR_INGESTION, "UTF-8");
