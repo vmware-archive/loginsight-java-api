@@ -21,6 +21,7 @@ Join us [@gitter](https://gitter.im/vmware/loginsight-java-api) to discuss on an
 ## Usage
 
 ### Getting the jar
+
 Functionality of this package is contained in Java package com.vmware.loginsightapi.
 To use the package, you need to use following Maven dependency:
 
@@ -40,6 +41,7 @@ compile group: 'com.vmware.loginsightapi', name: 'loginsight-java-api', version:
 
 ### API
 
+**Note:** This API works only with latest code in master branch and do not work with 0.1.0 release. We are planning to release a new version 0.1.1 by 25-Aug
 ####1. Connecting to LogInsight
 
 ~~~java
