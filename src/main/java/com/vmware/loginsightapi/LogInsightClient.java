@@ -321,7 +321,7 @@ public class LogInsightClient implements AutoCloseable {
 		} catch (Exception ie) {
 			completableFuture.completeExceptionally(new LogInsightApiException("Message query failed", ie));
 		}
-		return completableFuture.thenApply(response -> response);
+		return completableFuture;
 	}
 
 	/**
@@ -370,7 +370,7 @@ public class LogInsightClient implements AutoCloseable {
 		} catch (Exception ie) {
 			completableFuture.completeExceptionally(new LogInsightApiException("Message query failed", ie));
 		}
-		return completableFuture.thenApply(response -> response);
+		return completableFuture;
 	}
 
 	/**
@@ -407,19 +407,19 @@ public class LogInsightClient implements AutoCloseable {
 
 				@Override
 				public void failed(Exception ex) {
-					completableFuture.completeExceptionally(new LogInsightApiException("Failed message Query", ex));
+					completableFuture.completeExceptionally(new LogInsightApiException("Ingestion failed", ex));
 				}
 
 				@Override
 				public void cancelled() {
-					completableFuture.completeExceptionally(new LogInsightApiException("Cancelled message Query"));
+					completableFuture.completeExceptionally(new LogInsightApiException("Ingestion cancelled"));
 				}
 
 			});
 		} catch (Exception e) {
 			completableFuture.completeExceptionally(new LogInsightApiException("Ingestion failed", e));
 		}
-		return completableFuture.thenApply(response -> response);
+		return completableFuture;
 	}
 
 	/**

@@ -14,10 +14,12 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +50,7 @@ import com.vmware.loginsightapi.core.AggregateResponse;
 import com.vmware.loginsightapi.core.FieldConstraint;
 import com.vmware.loginsightapi.core.IngestionRequest;
 import com.vmware.loginsightapi.core.IngestionResponse;
+import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
@@ -112,41 +115,8 @@ public class LogInsightClientMockTest {
 
 	@Test
 	public void testMessageQuery() {
-		List<FieldConstraint> constraints = new ConstraintBuilder().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		MessageQuery mqb = (MessageQuery) new MessageQuery().limit(100)
-				.setConstraints(constraints);
-
-		HttpGet getRequest = client.getHttpRequest(mqb.toUrlString(), false);
-		try {
-			Assert.assertEquals("Request URI is malformed", new URI(
-					"https://" + config.getHost() + ":443/api/v1/events/vclap_caseid/EQ+1423244/timestamp/GT+0"),
-					getRequest.getURI());
-		} catch (Exception e) {
-			logger.error(ExceptionUtils.getStackTrace(e));
-			Assert.assertTrue(false);
-		}
-		Header[] headers = getRequest.getAllHeaders();
-		for (int i = 0; i < headers.length; i++) {
-			String headerName = headers[i].getName();
-			String headerValue = headers[i].getValue();
-			if (headerName.equals("Content-Type")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-
-			if (headerName.equals("Accept")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-
-			if (headerName.equals("x-li-timestamp")) {
-				Assert.assertNotNull("x-li-timestamp header is not set", headerValue);
-			}
-
-			if (headerName.equals("X-li-session-id")) {
-				Assert.assertNotNull("X-li-session-id header is not set", headerValue);
-			}
-		}
-
+		MessageQuery mqb = getMessageQueryForTest();
+		testMessageQueryUrlAndHeaders(mqb);
 		HttpResponse response = mock(HttpResponse.class);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
@@ -174,14 +144,146 @@ public class LogInsightClientMockTest {
 			Assert.assertTrue(false);
 		}
 	}
-
+	
 	@Test
-	public void testAggregateQuery() {
-		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
-				.gt("timestamp", "0").build();
-		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
-				.setConstraints(constraints);
+	public void testMessageQueryFailure() {
+		MessageQuery mqb = getMessageQueryForTest();
+		testMessageQueryUrlAndHeaders(mqb);
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+		
 
+		try {
+			when(httpEntity.getContent()).thenThrow(IOException.class);
+			CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
+			MessageQueryResponse messages = responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof IOException);
+		}
+	}
+	
+	@Test
+	public void testMessageQueryRuntimeFailure() {
+		MessageQuery mqb = getMessageQueryForTest();
+		testMessageQueryUrlAndHeaders(mqb);
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+		
+
+		try {
+			when(httpEntity.getContent()).thenThrow(Exception.class);
+			CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
+			MessageQueryResponse messages = responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Message query failed");
+		} catch (Exception e1) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testMessageQueryCancelled() {
+		MessageQuery mqb = getMessageQueryForTest();
+		testMessageQueryUrlAndHeaders(mqb);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.cancelled();
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+		
+
+		try {
+			CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Cancelled message Query");
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testMessageQueryFailedInCallback() {
+		MessageQuery mqb = getMessageQueryForTest();
+		testMessageQueryUrlAndHeaders(mqb);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.failed(new Exception());
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+		
+
+		try {
+			CompletableFuture<MessageQueryResponse> responseFuture = client.messageQuery(mqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Failed message Query");
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	private MessageQuery getMessageQueryForTest() {
+		List<FieldConstraint> constraints = new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		return (MessageQuery) new MessageQuery().limit(100)
+				.setConstraints(constraints);
+	}
+	
+	private void testMessageQueryUrlAndHeaders(MessageQuery mqb) {
+		HttpGet getRequest = client.getHttpRequest(mqb.toUrlString(), false);
+		try {
+			Assert.assertEquals("Request URI is malformed", new URI(
+					"https://" + config.getHost() + ":443/api/v1/events/vclap_caseid/EQ+1423244/timestamp/GT+0"),
+					getRequest.getURI());
+		} catch (Exception e) {
+			logger.error(ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(false);
+		}
+		Header[] headers = getRequest.getAllHeaders();
+		testRequestHeaders(headers);
+	}
+	
+	private void testAggregateQueryUrlAndHeaders(AggregateQuery aqb) {
 		HttpGet getRequest = client.getHttpRequest(aqb.toUrlString(), true);
 		try {
 			Assert.assertTrue("Request URI is malformed", getRequest.getURI().equals(new URI("https://"
@@ -190,6 +292,23 @@ public class LogInsightClientMockTest {
 			Assert.assertTrue(false);
 		}
 		Header[] headers = getRequest.getAllHeaders();
+		testRequestHeaders(headers);
+	}
+	
+	private void testIngestionQueryUrlAndHeaders(IngestionRequest ingestionRequest) {
+		HttpPost postRequest = client.getIngestionHttpRequest(ingestionRequest);
+		try {
+			URI expectedURI = new URI("https://" + config.getHost() + ":" + config.getIngestionPort()
+					+ "/api/v1/messages/ingest/" + LogInsightClient.DEFAULT_INGESTION_AGENT_ID);
+			Assert.assertTrue("Request URI is malformed", postRequest.getURI().equals(expectedURI));
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+		Header[] headers = postRequest.getAllHeaders();
+		testPostRequestHeaders(headers);
+	}
+	
+	private void testRequestHeaders(Header[] headers) {
 		for (int i = 0; i < headers.length; i++) {
 			String headerName = headers[i].getName();
 			String headerValue = headers[i].getValue();
@@ -209,7 +328,30 @@ public class LogInsightClientMockTest {
 				Assert.assertNotNull("X-li-session-id header is not set", headerValue);
 			}
 		}
+	}
+	
+	private void testPostRequestHeaders(Header[] headers) {
+		for (int i = 0; i < headers.length; i++) {
+			String headerName = headers[i].getName();
+			String headerValue = headers[i].getValue();
+			if (headerName.equals("Content-Type")) {
+				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
+			}
 
+			if (headerName.equals("Accept")) {
+				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
+			}
+		}
+	}
+
+
+	@Test
+	public void testAggregateQuery() {
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
+				.setConstraints(constraints);
+		testAggregateQueryUrlAndHeaders(aqb);
 		HttpResponse response = mock(HttpResponse.class);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
@@ -238,6 +380,133 @@ public class LogInsightClientMockTest {
 			Assert.assertTrue(false);
 		}
 	}
+	
+	@Test
+	public void testAggregateQueryFailure() {
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
+				.setConstraints(constraints);
+		testAggregateQueryUrlAndHeaders(aqb);
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_AGGREGATE_QUERY_RESPONSE, "UTF-8");
+			when(httpEntity.getContent()).thenThrow(IOException.class);
+			CompletableFuture<AggregateResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Unable to process the query response");
+		}
+	}
+	
+	@Test
+	public void testAggregateQueryRuntimeFailure() {
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
+				.setConstraints(constraints);
+		testAggregateQueryUrlAndHeaders(aqb);
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_AGGREGATE_QUERY_RESPONSE, "UTF-8");
+			when(httpEntity.getContent()).thenThrow(Exception.class);
+			CompletableFuture<AggregateResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Message query failed");
+		}
+	}
+
+	
+	@Test
+	public void testAggregateQueryCancelled() {
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
+				.setConstraints(constraints);
+		testAggregateQueryUrlAndHeaders(aqb);
+
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.cancelled();
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			CompletableFuture<AggregateResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Cancelled message Query");
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testAggregateQueryFailedInCallback() {
+		List<FieldConstraint> constraints =  new ConstraintBuilder().eq("vclap_caseid", "1423244")
+				.gt("timestamp", "0").build();
+		AggregateQuery aqb = (AggregateQuery) new AggregateQuery().limit(100)
+				.setConstraints(constraints);
+		testAggregateQueryUrlAndHeaders(aqb);
+
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          @SuppressWarnings("unchecked")
+				FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.failed(new Exception());
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			CompletableFuture<AggregateResponse> responseFuture = client.aggregateQuery(aqb.toUrlString());
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Failed message Query");
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+	}
 
 
 	@Test
@@ -246,28 +515,8 @@ public class LogInsightClientMockTest {
 		msg1.addField("vclap_test_id", "11111");
 		IngestionRequest request = new IngestionRequest();
 		request.addMessage(msg1);
-
-		HttpPost postRequest = client.getIngestionHttpRequest(request);
-		try {
-			URI expectedURI = new URI("https://" + config.getHost() + ":" + config.getIngestionPort()
-					+ "/api/v1/messages/ingest/" + LogInsightClient.DEFAULT_INGESTION_AGENT_ID);
-			Assert.assertTrue("Request URI is malformed", postRequest.getURI().equals(expectedURI));
-		} catch (Exception e) {
-			Assert.assertTrue(false);
-		}
-		Header[] headers = postRequest.getAllHeaders();
-		for (int i = 0; i < headers.length; i++) {
-			String headerName = headers[i].getName();
-			String headerValue = headers[i].getValue();
-			if (headerName.equals("Content-Type")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-
-			if (headerName.equals("Accept")) {
-				Assert.assertEquals("Wrong request header value", "application/json", headerValue);
-			}
-		}
-
+		testIngestionQueryUrlAndHeaders(request);
+		
 		HttpResponse response = mock(HttpResponse.class);
 		HttpEntity httpEntity = mock(HttpEntity.class);
 		when(response.getEntity()).thenReturn(httpEntity);
@@ -288,10 +537,133 @@ public class LogInsightClientMockTest {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_EXPECTED_RESPONSE_FOR_INGESTION, "UTF-8");
 			when(httpEntity.getContent()).thenReturn(inputStream);
 			CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
-			responseFuture.complete(new IngestionResponse());
-//			Assert.assertTrue("Invalid status in ingestion response", "ok".equals(messages.getStatus()));
+			Assert.assertTrue("Invalid status in ingestion response", "ok".equals(responseFuture.get().getStatus()));
 		} catch (Exception e) {
 			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testIngestionFailure() {
+		Message msg1 = new Message("Testing the ingestion");
+		msg1.addField("vclap_test_id", "11111");
+		IngestionRequest request = new IngestionRequest();
+		request.addMessage(msg1);
+		testIngestionQueryUrlAndHeaders(request);
+		
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			when(httpEntity.getContent()).thenThrow(IOException.class);
+			CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Unable to process the query response");
+		}
+	}
+	
+	@Test
+	public void testIngestionRuntimeFailure() {
+		Message msg1 = new Message("Testing the ingestion");
+		msg1.addField("vclap_test_id", "11111");
+		IngestionRequest request = new IngestionRequest();
+		request.addMessage(msg1);
+		testIngestionQueryUrlAndHeaders(request);
+		
+		HttpResponse response = mock(HttpResponse.class);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.completed(response);
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			when(httpEntity.getContent()).thenThrow(Exception.class);
+			CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Ingestion failed");
+		} catch (Exception e1) {
+			Assert.assertTrue(false);
+		}
+	}
+
+	
+	@Test
+	public void testIngestionCancelled() {
+		Message msg1 = new Message("Testing the ingestion");
+		msg1.addField("vclap_test_id", "11111");
+		IngestionRequest request = new IngestionRequest();
+		request.addMessage(msg1);
+		testIngestionQueryUrlAndHeaders(request);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.cancelled();
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Ingestion cancelled");
+		} catch (Exception e) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testIngestionFailedInCallback() {
+		Message msg1 = new Message("Testing the ingestion");
+		msg1.addField("vclap_test_id", "11111");
+		IngestionRequest request = new IngestionRequest();
+		request.addMessage(msg1);
+		testIngestionQueryUrlAndHeaders(request);
+		
+		doAnswer(new Answer<Future<HttpResponse>>() {
+			  @Override
+		      public Future<HttpResponse> answer(InvocationOnMock invocation) {
+		          FutureCallback<HttpResponse> responseCallback = invocation.getArgumentAt(1, FutureCallback.class);
+		          responseCallback.failed(new Exception());
+		          return null;
+		      }})
+		  .when(asyncHttpClient).execute(any(HttpUriRequest.class), any(FutureCallback.class));
+
+		try {
+			CompletableFuture<IngestionResponse> responseFuture = client.ingest(request);
+			responseFuture.get(0, TimeUnit.MILLISECONDS);
+		} catch (ExecutionException e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+			Assert.assertTrue(e.getCause() instanceof LogInsightApiException);
+			Assert.assertEquals(e.getCause().getMessage(), "Ingestion failed");
+		} catch (Exception e) {
 			Assert.assertTrue(false);
 		}
 	}
