@@ -39,6 +39,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -64,14 +65,9 @@ public class LogInsightClientMockTest {
 	private final static String SERVER_RESPONSE_EXPECTED = "{\"userId\":\"7506ecf5-cd7a-4ae3-88b7-f72fc1955c73\","
 			+ "\"sessionId\":\"qyOLWEe7f/GjdM1WnczrCeQure97B/NpTbWTeqqYPBd1AYMf9cMNfQYqltITI4ffPMx822Sz9i/X47t8VwsDb0oGckclJUdn83cyIPk6WlsOpI4Yjw6WpurAnv9RhDsYSzKhAMzskzhTOJKfDHZjWR5v576WwtJA71wqI7igFrG91LG5c/3GfzMb68sUHF6hV+meYtGS4A1y/lUItvfkqTTAxBtTCZNoKrvCJZ4R+b6vuAAYoBNSWL7ycIy2LsALrVFxftAkA8n9DBAZYA9T5A==\",\"ttl\":1800}";
 	private final static String SERVER_EXPECTED_QUERY_RESPONSE = "{\"complete\":true,\"duration\":57,\"events\":"
-			+ "[{\"text\":\"2015-05-20T15:31:01.783+02:00 [10108 trivia 'commonvpxLro' opID=939CF9EC-00000B7B-88] "
-			+ "[VpxLRO] Work item scheduled, total threads 8, max threads 640, running threads 7, queued size 1\","
-			+ "\"timestamp\":1432135888000,\"fields\":[{\"name\":\"vclap_product\",\"content\":\"vcenter\"},"
-			+ "{\"name\":\"vclap_source\",\"content\":\"vcenter\"},{\"name\":\"vclap_caseid\",\"content\":\"1423244\"},"
-			+ "{\"name\":\"hostname\",\"content\":\"loganalyzer-web.eng.vmware.com\"},{\"name\":\"event_type\","
-			+ "\"content\":\"v4_e7aecfc7\"},{\"name\":\"appname\",\"content\":\"vpxd\"},"
-			+ "{\"name\":\"filepath\",\"content\":\"vpxd-47457.log\"},{\"name\":\"source\","
-			+ "\"content\":\"10.152.215.4\"},{\"name\":\"bundle\",\"content\":\"VC\"},{\"name\":\"tenant\",\"content\":\"cpd\"}]}]}";
+			+ "[{\"text\":\"log line 1\","
+			+ "\"timestamp\":1432135888000,\"fields\":[{\"name\":\"field1\",\"content\":\"value1\"},"
+			+ "{\"name\":\"field2\",\"content\":\"value2\"},{\"name\":\"field3\",\"content\":\"value3\"}]}]}";
 
 	private final static String SERVER_EXPECTED_AGGREGATE_QUERY_RESPONSE = "{\"complete\":true,\"duration\":52,"
 			+ "\"bins\":[{\"minTimestamp\":1432135885000,\"maxTimestamp\":1432135889999,\"value\":208515}]}";
@@ -110,6 +106,36 @@ public class LogInsightClientMockTest {
 					client.getSessionId());
 		} catch (Exception e) {
 			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+		}
+	}
+	
+	@Test
+	public void testLogInsightConstructor() {
+		when(connectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
+		HttpResponse response = mock(HttpResponse.class);
+		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
+		when(asyncHttpClient.execute(any(HttpUriRequest.class),any(FutureCallback.class))).thenReturn(future, null);
+		HttpEntity httpEntity = mock(HttpEntity.class);
+		when(response.getEntity()).thenReturn(httpEntity);
+		StatusLine statusLine = mock(StatusLine.class);
+		when(response.getStatusLine()).thenReturn(statusLine);
+		when(statusLine.getStatusCode()).thenReturn(200);
+		LogInsightClient client1 = null;
+		try {
+			InputStream inputStream = IOUtils.toInputStream(SERVER_RESPONSE_EXPECTED, "UTF-8");
+			when(httpEntity.getContent()).thenReturn(inputStream);
+			client1 = new LogInsightClient(config.getHost(), config.getUser(), "dummy-password");
+			assertEquals("Invalid session id!!",
+					"qyOLWEe7f/GjdM1WnczrCeQure97B/NpTbWTeqqYPBd1AYMf9cMNfQYqltITI4ffPMx822Sz9i/X47t8VwsDb0oGckclJUdn83cyIPk6WlsOpI4Yjw6WpurAnv9RhDsYSzKhAMzskzhTOJKfDHZjWR5v576WwtJA71wqI7igFrG91LG5c/3GfzMb68sUHF6hV+meYtGS4A1y/lUItvfkqTTAxBtTCZNoKrvCJZ4R+b6vuAAYoBNSWL7ycIy2LsALrVFxftAkA8n9DBAZYA9T5A==",
+					client1.getSessionId());
+		} catch (Exception e) {
+			logger.error("Exception raised " + ExceptionUtils.getStackTrace(e));
+		} finally {
+			try {
+				client1.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
