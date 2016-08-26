@@ -153,38 +153,31 @@ public class Configuration {
 		liConfig.ingestionPort = Integer.toString(DEFAULT_INGESTION_PORT);
 		liConfig.scheme = DEFAULT_SCHEME;
 
-		if (configData.containsKey(KEY_LI_HOST) && null != configData.get(KEY_LI_HOST)
-				&& StringUtils.isNotEmpty(configData.get(KEY_LI_HOST))) {
-			liConfig.host = configData.get(KEY_LI_HOST);
+		if (configData.containsKey(KEY_LI_HOST)) {
+			liConfig.setHost(configData.get(KEY_LI_HOST));
 		}
 
-		if (configData.containsKey(KEY_LI_PORT) && null != configData.get(KEY_LI_PORT)
-				&& StringUtils.isNotEmpty(configData.get(KEY_LI_PORT))) {
+		if (configData.containsKey(KEY_LI_PORT)) {
 			logger.info("setting port as well");
 			liConfig.setPort(configData.get(KEY_LI_PORT));
 		}
 
-		if (configData.containsKey(KEY_LI_INGESTION_PORT) && null != configData.get(KEY_LI_INGESTION_PORT)
-				&& StringUtils.isNotEmpty(configData.get(KEY_LI_INGESTION_PORT))) {
+		if (configData.containsKey(KEY_LI_INGESTION_PORT)) {
 			liConfig.setIngestionPort(configData.get(KEY_LI_INGESTION_PORT));
 		}
 
-		if (configData.containsKey(KEY_LI_USER) && null != configData.get(KEY_LI_USER)
-				&& StringUtils.isNotEmpty(configData.get(KEY_LI_USER))) {
-			liConfig.user = configData.get(KEY_LI_USER);
+		if (configData.containsKey(KEY_LI_USER)) {
+			liConfig.setUser(configData.get(KEY_LI_USER));
 		}
 
-		if (configData.containsKey(KEY_LI_PASSWORD) && null != configData.get(KEY_LI_PASSWORD)
-				&& StringUtils.isNotEmpty(configData.get(KEY_LI_PASSWORD))) {
-			liConfig.password = configData.get(KEY_LI_PASSWORD);
+		if (configData.containsKey(KEY_LI_PASSWORD)) {
+			liConfig.setPassword(configData.get(KEY_LI_PASSWORD));
 		}
 
-		if (configData.containsKey(KEY_CONNECTION_SCHEME) && null != configData.get(KEY_CONNECTION_SCHEME)
-				&& StringUtils.isNotEmpty(configData.get(KEY_CONNECTION_SCHEME))) {
+		if (configData.containsKey(KEY_CONNECTION_SCHEME)) {
 			liConfig.setScheme(configData.get(KEY_CONNECTION_SCHEME));
 		}
-		if (configData.containsKey(KEY_AGENT_ID) && null != configData.get(KEY_AGENT_ID)
-				&& StringUtils.isNotEmpty(configData.get(KEY_AGENT_ID))) {
+		if (configData.containsKey(KEY_AGENT_ID)) {
 			liConfig.setAgentId(configData.get(KEY_AGENT_ID));
 		}
 		return liConfig;
@@ -206,8 +199,8 @@ public class Configuration {
 	 *            http or https
 	 */
 	public void setScheme(String scheme) {
-		if (null != scheme && !StringUtils.isEmpty(scheme)) {
-			if (DEFAULT_SCHEME.equals("https")) {
+		if (StringUtils.isNotEmpty(scheme)) {
+			if (DEFAULT_SCHEME.equals(scheme)) {
 				this.scheme = scheme;
 			} else {
 				throw new NotImplementedException("only https scheme is available");
@@ -233,10 +226,10 @@ public class Configuration {
 	 *            ingestion port number (string format)
 	 */
 	public void setIngestionPort(String ingestionPort) {
-		if (null != ingestionPort && !StringUtils.isEmpty(ingestionPort)) {
+		if (StringUtils.isNotEmpty(ingestionPort)) {
 			this.ingestionPort = ingestionPort;
 		} else {
-			throw new IllegalArgumentException("Invalid Ingestion port ");
+			throw new IllegalArgumentException("Invalid Ingestion port");
 		}
 	}
 
@@ -259,7 +252,7 @@ public class Configuration {
 	 *             when the agentId is not a valid UUID
 	 */
 	public void setAgentId(String agentId) {
-		if (null != agentId && !StringUtils.isEmpty(agentId)) {
+		if (StringUtils.isNotEmpty(agentId)) {
 			UUID uuid = UUID.fromString(agentId);
 			this.agentId = uuid.toString();
 		} else {
@@ -274,10 +267,10 @@ public class Configuration {
 	 *            Host name of the LogInsight server
 	 */
 	public void setHost(String host) {
-		if (null != host && !StringUtils.isEmpty(host)) {
+		if (StringUtils.isNotEmpty(host)) {
 			this.host = host;
 		} else {
-			throw new IllegalArgumentException("Invalid host name ");
+			throw new IllegalArgumentException("Invalid host name");
 		}
 	}
 
@@ -288,10 +281,10 @@ public class Configuration {
 	 *            user name for LogInsight
 	 */
 	public void setUser(String user) {
-		if (null != user && !StringUtils.isEmpty(user)) {
+		if (StringUtils.isNotEmpty(user)) {
 			this.user = user;
 		} else {
-			throw new IllegalArgumentException("Invalid user name ");
+			throw new IllegalArgumentException("Invalid user name");
 		}
 	}
 
@@ -302,10 +295,10 @@ public class Configuration {
 	 *            password for LogInsight
 	 */
 	public void setPassword(String password) {
-		if (null != password && !StringUtils.isEmpty(password)) {
+		if (StringUtils.isNotEmpty(password)) {
 			this.password = password;
 		} else {
-			throw new IllegalArgumentException("Invalid password ");
+			throw new IllegalArgumentException("Invalid password");
 		}
 	}
 
@@ -316,10 +309,10 @@ public class Configuration {
 	 *            Port number (string format)
 	 */
 	public void setPort(String port) {
-		if (null != port && !StringUtils.isEmpty(port)) {
+		if (StringUtils.isNotEmpty(port)) {
 			this.port = port;
 		} else {
-			throw new IllegalArgumentException("Invalid port ");
+			throw new IllegalArgumentException("Invalid port");
 		}
 	}
 
@@ -371,15 +364,13 @@ public class Configuration {
 	 * @return Configuration object (this)
 	 */
 	public Configuration loadFromEnv() {
-		if (null != System.getenv("LOGINSIGHT_HOST") && StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_HOST"))) {
+		if (StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_HOST"))) {
 			this.host = System.getenv("LOGINSIGHT_HOST");
 		}
-		if (null != System.getenv("LOGINSIGHT_USERNAME")
-				&& StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_USERNAME"))) {
+		if (StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_USERNAME"))) {
 			this.user = System.getenv("LOGINSIGHT_USERNAME");
 		}
-		if (null != System.getenv("LOGINSIGHT_PASSWORD")
-				&& StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_PASSWORD"))) {
+		if (StringUtils.isNotEmpty(System.getenv("LOGINSIGHT_PASSWORD"))) {
 			this.password = System.getenv("LOGINSIGHT_PASSWORD");
 		}
 		return this;

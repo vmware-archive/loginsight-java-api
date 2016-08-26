@@ -55,6 +55,7 @@ import com.vmware.loginsightapi.core.LogInsightApiException;
 import com.vmware.loginsightapi.core.LogInsightConnectionStrategy;
 import com.vmware.loginsightapi.core.Message;
 import com.vmware.loginsightapi.core.MessageQueryResponse;
+import com.vmware.loginsightapi.util.AsyncLogInsightConnectionStrategy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogInsightClientMockTest {
@@ -111,7 +112,6 @@ public class LogInsightClientMockTest {
 	
 	@Test
 	public void testLogInsightConstructor() {
-		when(connectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
 		HttpResponse response = mock(HttpResponse.class);
 		Future<HttpResponse> future = ConcurrentUtils.constantFuture(response);
 		when(asyncHttpClient.execute(any(HttpUriRequest.class),any(FutureCallback.class))).thenReturn(future, null);
@@ -120,6 +120,8 @@ public class LogInsightClientMockTest {
 		StatusLine statusLine = mock(StatusLine.class);
 		when(response.getStatusLine()).thenReturn(statusLine);
 		when(statusLine.getStatusCode()).thenReturn(200);
+		AsyncLogInsightConnectionStrategy asyncConnectionStrategy = mock(AsyncLogInsightConnectionStrategy.class);
+		when(asyncConnectionStrategy.getHttpClient()).thenReturn(asyncHttpClient);
 		LogInsightClient client1 = null;
 		try {
 			InputStream inputStream = IOUtils.toInputStream(SERVER_RESPONSE_EXPECTED, "UTF-8");

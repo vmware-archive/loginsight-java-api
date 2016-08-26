@@ -15,6 +15,9 @@ import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.Assert;
+
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Test;
 
 public class TestConfiguration {
@@ -52,6 +55,7 @@ public class TestConfiguration {
 		configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
 		configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
 		configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+		configData.put(Configuration.KEY_AGENT_ID, "38400000-8cf0-11bd-b23e-10b96e4ef00d");
 		Configuration config = Configuration.buildConfig(configData);
 		assertEquals("Mismatch in hostname", "hostname", config.getHost());
 		assertEquals("Mismatch in user", "username", config.getUser());
@@ -60,7 +64,136 @@ public class TestConfiguration {
 		assertEquals("Mismatch in ingestion port", Integer.toString(Configuration.DEFAULT_INGESTION_PORT),
 				config.getIngestionPort());
 		assertEquals("Mismatch in scheme", Configuration.DEFAULT_SCHEME, config.getScheme());
-		
+		assertEquals("Mismatch in agent id", "38400000-8cf0-11bd-b23e-10b96e4ef00d", config.getAgentId());
+	}
+	
+	@Test
+	public void testBuildConfigInvalidHost() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid host name");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigInvalidAgentId() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			configData.put(Configuration.KEY_AGENT_ID, "");
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid Agent ID");
+		}
+	}
+
+	@Test
+	public void testBuildConfigInvalidPassword() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid password");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigInvalidUsername() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid user name");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigInvalidPort() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, "");
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid port");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigInvalidIngestionPort() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, "");
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, Configuration.DEFAULT_SCHEME);
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid Ingestion port");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigEmptyScheme() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, "");
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (IllegalArgumentException ex) {
+			assertEquals(ex.getMessage(), "Invalid http scheme. Should be https");
+		}
+	}
+	
+	@Test
+	public void testBuildConfigInvalidScheme() {
+		Map<String, String> configData = new HashMap<String, String>();
+		try {
+			configData.put(Configuration.KEY_LI_HOST, "hostname");
+			configData.put(Configuration.KEY_LI_USER, "username");
+			configData.put(Configuration.KEY_LI_PASSWORD, "password");
+			configData.put(Configuration.KEY_LI_PORT, Integer.toString(Configuration.DEFAULT_PORT));
+			configData.put(Configuration.KEY_LI_INGESTION_PORT, Integer.toString(Configuration.DEFAULT_INGESTION_PORT));
+			configData.put(Configuration.KEY_CONNECTION_SCHEME, "httpd");
+			Configuration config = Configuration.buildConfig(configData);
+		} catch (NotImplementedException ex) {
+			assertEquals(ex.getMessage(), "only https scheme is available");
+		}
 	}
 
 	@Test
