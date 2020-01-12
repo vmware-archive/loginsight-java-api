@@ -1,4 +1,4 @@
-
+# VMware has ended active development of this project, this repository will no longer be updated.
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.vmware.loginsightapi/loginsight-java-api/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.vmware.loginsightapi/loginsight-java-api)
 [![Gitter](https://badges.gitter.im/vmware/loginsight-java-api.svg)](https://gitter.im/vmware/loginsight-java-api?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Javadocs](http://javadoc.io/badge/com.vmware.loginsightapi/loginsight-java-api.svg?color=blue)](http://javadoc.io/doc/com.vmware.loginsightapi/loginsight-java-api)
